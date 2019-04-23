@@ -1,0 +1,27 @@
+.bienvenida{
+    color:#CACFD0;
+    white-space: normal;
+    font-family: 'Exo', sans-serif;
+    text-align: center;
+    font-size: 13px !important;
+    padding: 20px 4px 20px 4px !important;
+}
+
+.bienvenido{
+    font-size:30px;
+    font-family: 'Anton', sans-serif;
+}
+
+.sub_bienvenido{
+    font-size:20px;
+    font-family: 'Exo', sans-serif;
+}
+
+.bienvenido img{
+    padding-top:10px;
+}
+
+.img-valign {
+  vertical-align: middle;
+  margin-bottom: 0.75em;
+}
