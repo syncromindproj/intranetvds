@@ -58,6 +58,16 @@ class GrupoController extends Controller{
         echo "Grupo Eliminado";
     }
 
+    public function EliminaAsignacion()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $idgrupo = $datos['idgrupo'];
+        $iddocente = $datos['iddocente'];
+        $grupos = $this->model->EliminaAsignacion($idgrupo, $iddocente);
+        echo $grupos;
+    }
+
     public function VerGrupo()
     {
         $datos = $_REQUEST['datos'];
@@ -90,6 +100,15 @@ class GrupoController extends Controller{
         $usuario    = $datos['usuario'];
         $grupo = $this->model->GetGrupoID($usuario);
         echo json_encode($grupo);
+    }
+
+    public function GetDocentesxGrupo()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $iddocente    = $datos['iddocente'];
+        $grupos = $this->model->GetDocentesxGrupo($iddocente);
+        echo json_encode($grupos);
     }
 }
 

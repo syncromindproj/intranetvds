@@ -102,6 +102,19 @@
                                 <select required class="form-control" id="sl_docente" name="sl_docente"></select>
                             </div>
                         </div>
+                        <div class="form-row mt-3">
+                            <div class="col-12">
+                                <table id="grupos_docentes" class="table table-striped table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Grupo</th>
+                                            <th>Profesor Asignado</th>
+                                            <th>Opciones</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>  
+                        </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -135,6 +148,27 @@
         </div>
         <!-- End Delete Modal -->
 
+        <!-- Delete Modal Asignacion -->
+        <div class="modal modal-danger fade" id="modal_delete_asignacion">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">¿Eliminar Registro?</h4>
+              </div>
+              <div class="modal-body">
+                <p>Desea eliminar el registro?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn_elimina_asignacion" class="btn btn-outline">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Delete Modal Asignacion -->
+
     </section>
     <!-- /.content -->
   </div>
@@ -152,6 +186,7 @@
 
 <script>
     var grupos = "";
+    var grupos_docentes = "";
 
     $(document).ready(function() {
         var idgrupo = "";
@@ -312,6 +347,27 @@
             });
         });
 
+        $("#btn_elimina_asignacion").click(function(){
+            var idgrupo = $("#btn_elimina_asignacion").attr("data-grupo");
+            var iddocente = $("#btn_elimina_asignacion").attr("data-docente");
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>grupo/EliminaAsignacion", 
+                data:{
+                    datos: '{"idgrupo": "' + idgrupo + '", "iddocente":"'+ iddocente +'"}'
+                },
+                success: function(result){
+                    console.log(result);
+                    $('#modal_delete_asignacion').modal('hide');
+                    grupos_docentes.ajax.reload();	
+                    cargaDocentes(idgrupo);
+                },
+                error:function(result){
+                    console.log(result);
+                }
+            });
+        });
+
         $("#frm_asignar").submit(function(event){
             event.preventDefault();
             var iddocente   = $("#sl_docente").val();
@@ -329,10 +385,10 @@
                 },
                 success: function(result){
                     console.log(result);
-                    $("#md_asignar").modal('hide');
-                    grupos.ajax.reload();
-                    $("#mensaje_confirmacion").html("Se ha asignado un docente al grupo.");
-                    $("#confirm_grupo").show().delay(2000).fadeOut();
+                    //$("#md_asignar").modal('hide');
+                    grupos_docentes.ajax.reload();
+                    cargaDocentes(idgrupo);
+                    
                 },
                 error:function(result){
                     console.log(result);
@@ -340,28 +396,94 @@
             });
         });
 
-        //Cargar lista de docentes en combo
-        cargaDocentes();
-
     } );
     
     function asignar_grupo(id)
     {
+        //Cargar lista de docentes en combo
+        cargaDocentes(id);
+
         $("#md_asignar").modal();
         $("#modal_title_asignar").html("Asignar Docente");
         $("#btn_asignar").attr("data-value", id);
+
+        //Lista de docentes asignados al grupo
+        var info = {};
+        info["iddocente"]    = id;
+        var myJsonString    = JSON.stringify(info);
+
+        grupos_docentes = $('#grupos_docentes').DataTable( {
+		    "ajax": {
+                "type": "POST",
+                "url": "<?PHP echo constant('URL'); ?>grupo/GetDocentesxGrupo",
+                "data": {
+                    "datos": myJsonString
+                }
+            },
+			"responsive":true,
+            "bDestroy": true,
+            "ordering": false,
+            "bLengthChange": false,
+            "searching":false,
+			"scrollX":        false,
+			"scrollCollapse": true,
+			"fixedColumns":   {
+				"leftColumns": 2
+			},
+			"language":{
+				"url":"https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+			},
+			"columnDefs":[
+			    {
+			        "targets": [0],
+                    "data": "descripcion"
+                },
+                {
+			        "targets": [1],
+                    "data":"docente"
+			    },
+                {
+                    "targets": [2],
+                    "data":"idgrupo",
+                    "render": function(url, type, full){
+                        var idgrupo = full[2];
+                        var iddocente = full[3];
+                        return '<button type="button" onclick="eliminar_asignacion('+ idgrupo +', '+ iddocente +');" class="delete btn btn-danger"><i class="fa fa-remove"></i> Eliminar</button>'
+                        return false;
+                    }
+                } 
+			],
+			"columns":[
+				
+			],
+			
+		} );
     }
 
-    function cargaDocentes()
+    function eliminar_asignacion(idgrupo, iddocente)
+    {
+        $("#modal_delete_asignacion").modal();
+        $("#btn_elimina_asignacion").attr("data-grupo", idgrupo);
+        $("#btn_elimina_asignacion").attr("data-docente", iddocente);
+    }
+
+    function cargaDocentes(idgrupo)
     {
         $("#sl_docente").empty();
         $("#sl_docente").append('<option value="" selected="selected">Seleccione un docente</option>');
+        var info = {};
+        info["idgrupo"]  = idgrupo;
+        var myJsonString = JSON.stringify(info);
         $.ajax({
             type: "GET",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            url: "<?PHP echo constant('URL'); ?>docente/GetDocentes", 
+            url: "<?PHP echo constant('URL'); ?>docente/GetDocentesDropdown", 
+            data:{
+                datos: myJsonString
+            },
             success: function(result){
+                console.log(result);
                 $.each(result.data, function(i,v){
                     var iddocente   = v.iddocente;
                     var apellidos   = v.apellidos;

@@ -26,6 +26,32 @@ class DocenteModel extends Model
         }
     }
 
+    public function GetDocentesDropdown($idgrupo)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("select * from docente 
+            where iddocente not in (
+            select iddocente from grupo_docente where idgrupo=:idgrupo)
+            order by apellidos ASC");
+            $query->execute([
+                'idgrupo' => $idgrupo
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
     public function VerDocente($id){
         $items = [];
 
@@ -60,8 +86,8 @@ class DocenteModel extends Model
         
             $query = $this->db->connect()->prepare('insert into docente (nombres, apellidos, correo, celular, dni) values (:nombres, :apellidos, :correo, :celular, :dni)');
             $query->execute([
-                'nombres'           => $nombres,
-                'apellidos'         => $apellidos,
+                'nombres'           => strtoupper($nombres),
+                'apellidos'         => strtoupper($apellidos),
                 'correo'            => $correo,
                 'celular'           => $celular,
                 'dni'               => $dni
@@ -96,8 +122,8 @@ class DocenteModel extends Model
             
             $query = $this->db->connect()->prepare('update docente set nombres = :nombres, apellidos = :apellidos, correo = :correo, celular = :celular, dni = :dni where iddocente = :id');
             $query->execute([
-                'nombres'           => $nombres,
-                'apellidos'         => $apellidos,
+                'nombres'           => strtoupper($nombres),
+                'apellidos'         => strtoupper($apellidos),
                 'correo'            => $correo,
                 'celular'           => $celular,
                 'dni'               => $dni,

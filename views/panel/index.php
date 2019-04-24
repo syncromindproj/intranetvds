@@ -117,8 +117,6 @@
                                 <tr>
                                     <th>Nombres</th>
                                     <th>Apellidos</th>
-                                    <th>Correo</th>
-                                    <th>Celular</th>
                                 </tr>
                             </thead>
                         </table>
@@ -342,16 +340,6 @@
                             {
                                 "targets":1,
                                 "data":"apellidos",
-                                "width":"15%"
-                            },
-                            {
-                                "targets":2,
-                                "data":"correo",
-                                "width":"15%"
-                            },
-                            {
-                                "targets":3,
-                                "data":"celular",
                                 "width":"15%"
                             }
                         ]

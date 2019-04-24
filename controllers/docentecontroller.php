@@ -19,6 +19,14 @@ class DocenteController extends Controller
         echo(json_encode($docentes));
     }
 
+    public function GetDocentesDropdown()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $docentes = $this->model->GetDocentesDropdown($datos['idgrupo']);
+        echo(json_encode($docentes));
+    }
+
     public function VerDocente()
     {
         $datos = $_REQUEST['datos'];

@@ -62,13 +62,22 @@ class GrupoModel extends Model{
 
     public function InsertaGrupo($datos){
         $query = $this->db->connect()->prepare('insert into grupo (descripcion) values (:descripcion)');
-        $query->execute(['descripcion' => $datos['descripcion']]);
+        $query->execute(['descripcion' => strtoupper($datos['descripcion'])]);
     }
 
     public function EliminaGrupo($id){
         $query = $this->db->connect()->prepare('delete from grupo where idgrupo=:id');
         $query->execute([
             'id' => $id
+        ]);
+    }
+
+    public function EliminaAsignacion($idgrupo, $iddocente)
+    {
+        $query = $this->db->connect()->prepare('delete from grupo_docente where idgrupo=:idgrupo and iddocente=:iddocente');
+        $query->execute([
+            'idgrupo'   => $idgrupo,
+            'iddocente' => $iddocente
         ]);
     }
 
@@ -133,11 +142,11 @@ class GrupoModel extends Model{
     public function AsignarDocente($idgrupo, $iddocente)
     {
         try{
-            $query = $this->db->connect()->prepare('delete from grupo_docente where idgrupo = :idgrupo');
+            /* $query = $this->db->connect()->prepare('delete from grupo_docente where idgrupo = :idgrupo');
             $query->execute(
                 [
                     'idgrupo' => $idgrupo
-                ]);      
+                ]);       */
 
             $query = $this->db->connect()->prepare('insert into grupo_docente (idgrupo, iddocente) values (:idgrupo, :iddocente)');
             $query->execute(
@@ -183,5 +192,46 @@ class GrupoModel extends Model{
             return null;
         }
     }
+
+    public function GetDocentesxGrupo($idgrupo){
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("SELECT 
+            g.descripcion,
+            concat(d.apellidos, ', ', d.nombres) as docente,
+            g.idgrupo,
+            d.iddocente
+            FROM grupo g
+            inner join grupo_docente gd
+            on gd.idgrupo = g.idgrupo
+            INNER join docente d
+            on d.iddocente = gd.iddocente
+            where g.idgrupo=:idgrupo");
+
+            try{
+                $query->execute(
+                    [
+                        'idgrupo' => $idgrupo
+                    ]);      
+    
+                while($row =  $query->fetch()){
+                    $items['data'][] = $row;
+                }
+    
+                if(count($items) == 0){
+                    $items['data'] = "";
+                }
+                
+                return $items;
+            }catch(PDOException $e){
+                return null;
+            }
+            
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
 }
 ?>
