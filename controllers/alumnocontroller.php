@@ -86,6 +86,47 @@ class AlumnoController extends Controller{
         $alumno     = $this->model->getByDocente($idparticipante);
         echo json_encode($alumno);
     }
+
+    public function getByDocentInforme()
+    {
+        $datos      = $_REQUEST['datos'];
+        $datos      = json_decode($datos, true);
+        $idparticipante   = $datos['idparticipante'];
+        $alumno     = $this->model->getByDocentInforme($idparticipante);
+        echo json_encode($alumno);
+    }
+
+    public function getAlumnosEvento()
+    {
+        $datos      = $_REQUEST['datos'];
+        $datos      = json_decode($datos, true);
+        $alumnos = $this->model->getAlumnosEvento($datos);
+        echo(json_encode($alumnos));
+    }
+
+    public function getAlumnosAutorizados()
+    {
+        $datos      = $_REQUEST['datos'];
+        $datos      = json_decode($datos, true);
+        $alumnos = $this->model->getAlumnosAutorizados($datos);
+        echo(json_encode($alumnos));
+    }
+
+    public function getAlumnosComunicado()
+    {
+        $datos      = $_REQUEST['datos'];
+        $datos      = json_decode($datos, true);
+        $alumnos = $this->model->getAlumnosComunicado($datos);
+        echo(json_encode($alumnos));
+    }
+
+    public function VerificaDNIAlumno()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $info = $this->model->VerificaDNIAlumno($datos);
+        echo json_encode($info);
+    }
 }
 
 ?>

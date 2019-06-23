@@ -41,8 +41,12 @@ class UsuarioController extends Controller
                 $_SESSION['usuario']        = $usuarios['data'][0]['usuario'];
                 $_SESSION['idparticipante'] = $usuarios['data'][0]['idparticipante'];
                 $usuarios['data']['estado'] = "OK";
+                $usuarios['data']['reglamento'] = $usuarios['data'][0]['reglamento'];
+                $usuarios['data']['pagos'] = $usuarios['data'][0]['pagos'];
+                $usuarios['data']['idusuario'] = $usuarios['data'][0]['idusuario'];
             }
         }
+
         $_SESSION['tipo'] = $tipo;
         $usuarios['data']['tipo'] = $tipo;
         echo json_encode($usuarios);        
@@ -52,6 +56,22 @@ class UsuarioController extends Controller
     {
         session_start();
         session_destroy();
+    }
+
+    public function ActualizaAprobacionReglamento()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos  = json_decode($datos, true);
+        $upd = $this->model->ActualizaAprobacionReglamento($datos['usuario']);
+        echo $upd;
+    }
+
+    public function ActualizaAprobacionPagos()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos  = json_decode($datos, true);
+        $upd = $this->model->ActualizaAprobacionPagos($datos['usuario']);
+        echo $upd;
     }
 } 
 ?>

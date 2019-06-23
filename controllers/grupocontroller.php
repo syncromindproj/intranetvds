@@ -110,6 +110,15 @@ class GrupoController extends Controller{
         $grupos = $this->model->GetDocentesxGrupo($iddocente);
         echo json_encode($grupos);
     }
+
+    public function GetGrupoParticipante()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $id    = $datos['id'];
+        $grupo = $this->model->GetGrupoParticipante($id);
+        echo json_encode($grupo);
+    }
 }
 
 ?>

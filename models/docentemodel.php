@@ -84,24 +84,13 @@ class DocenteModel extends Model
             $celular            = $datos['celular'];
             $dni                = $datos['dni'];
         
-            $query = $this->db->connect()->prepare('insert into docente (nombres, apellidos, correo, celular, dni) values (:nombres, :apellidos, :correo, :celular, :dni)');
+            $query = $this->db->connect()->prepare('call inserta_docente (:nombres, :apellidos, :correo, :celular, :dni)');
             $query->execute([
                 'nombres'           => strtoupper($nombres),
                 'apellidos'         => strtoupper($apellidos),
                 'correo'            => $correo,
                 'celular'           => $celular,
                 'dni'               => $dni
-            ]);
-
-            $query = $this->db->connect()->prepare("insert into usuario (idtipo, nombres, apellidos, usuario, clave)
-            values (:idtipo, :nombres, :apellidos, :dni, :clave)") ;
-            
-            $query->execute([
-                'idtipo'            => 'DOC',
-                'nombres'           => $nombres,
-                'apellidos'         => $apellidos,
-                'dni'               => $dni,
-                'clave'             => MD5($dni)
             ]);
 
             return "Registro ingresado";
@@ -155,6 +144,11 @@ class DocenteModel extends Model
     public function EliminaDocente($id)
     {
         $query = $this->db->connect()->prepare('delete from docente where iddocente = :id');
+        $query->execute([
+            'id'  => $id
+        ]);
+
+        $query = $this->db->connect()->prepare('delete from usuario where idparticipante = :id and idtipo="DOC"');
         $query->execute([
             'id'  => $id
         ]);

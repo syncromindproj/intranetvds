@@ -10,14 +10,136 @@ class AlumnoModel extends Model{
         $items = [];
 
         try{
-            $query = $this->db->connect()->query("select p.idparticipante, p.nombres, p.apellidos, p.edad, COALESCE(g.descripcion, 'Sin grupo asignado') as grupo
-            from participantes p 
+            $query = $this->db->connect()->query("select 
+            p.idparticipante,
+            p.nombres,
+            p.apellidos,
+            p.edad,
+            COALESCE(g.descripcion, 'Sin grupo asignado') as grupo,
+            COALESCE(madres.nombres, 'SIN DATOS ASIGNADOS') as datos_madre,
+            COALESCE(padres.nombres, 'SIN DATOS ASIGNADOS') as datos_padre
+            from 
+            participantes p
             left join grupo_participante gp
-            on gp.idparticipante = p.idparticipante
-            left join grupo g 
-            on g.idgrupo = gp.idgrupo
-            where p.aprobado = 1
+             on gp.idparticipante = p.idparticipante
+             left join grupo g 
+             on g.idgrupo = gp.idgrupo
+            left join 
+            (SELECT 
+            aa.idparticipante,
+             a.nombres
+            FROM apoderado a
+            inner join apoderado_alumno aa
+             on aa.idapoderado = a.idapoderado
+            WHERE 
+            a.tipo = 'M') madres
+            on madres.idparticipante = p.idparticipante
+            left join 
+            (SELECT 
+            aa.idparticipante,
+             a.nombres
+            FROM apoderado a
+            inner join apoderado_alumno aa
+             on aa.idapoderado = a.idapoderado
+             
+            WHERE 
+            a.tipo = 'P') padres
+            on padres.idparticipante = p.idparticipante
+            
+            where p.aprobado =1
             order by p.apellidos asc");
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function getAlumnosAutorizados($datos)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("SELECT 
+            p.idparticipante,
+            p.apellidos,
+            p.nombres,
+            p.correo_postulante,
+            p.celular_postulante,
+            CASE WHEN ea.autorizacion = '1' THEN 'AUTORIZADO' ELSE 'SIN AUTORIZACION' END AS autorizacion
+            FROM evento_alumno ea
+            inner join participantes p
+            on p.idparticipante = ea.idalumno
+            WHERE ea.idevento = :idevento
+            order by p.apellidos asc");
+
+            $query->execute([
+                'idevento' => $datos['idevento']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function getAlumnosEvento($datos)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("select 
+            idalumno
+            from evento_alumno
+            where idevento = :idevento");
+
+            $query->execute([
+                'idevento' => $datos['idevento']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function getAlumnosComunicado($datos)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("select 
+            idparticipante
+            from comunicado_alumno
+            where idcomunicado = :idcomunicado");
+
+            $query->execute([
+                'idcomunicado' => $datos['idcomunicado']
+            ]);
 
             while($row =  $query->fetch()){
                 $items['data'][] = $row;
@@ -46,6 +168,52 @@ class AlumnoModel extends Model{
             on g.idgrupo = gp.idgrupo
             inner join grupo_docente gd
             on gd.idgrupo = g.idgrupo
+            where p.aprobado = 1
+            and gd.iddocente=:iddocente
+            order by p.apellidos asc");
+
+            $query->execute([
+                'iddocente'           => $iddocente
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function getByDocentInforme($iddocente)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("select 
+            p.idparticipante, 
+            p.nombres, 
+            p.apellidos, 
+            p.edad, 
+            COALESCE(g.descripcion, 'Sin grupo asignado') as grupo,
+            COALESCE(i.url, 'SIN INFORME') as informe,
+            COALESCE(i.idinforme, '0') as idinforme
+            from participantes p 
+            left join grupo_participante gp
+            on gp.idparticipante = p.idparticipante
+            left join grupo g 
+            on g.idgrupo = gp.idgrupo
+            inner join grupo_docente gd
+            on gd.idgrupo = g.idgrupo
+            left join informe_participante ip
+            on ip.idparticipante = p.idparticipante
+            left join informe i
+            on i.idinforme = ip.idinforme
             where p.aprobado = 1
             and gd.iddocente=:iddocente
             order by p.apellidos asc");
@@ -249,6 +417,33 @@ order by p.apellidos asc");
             }
             
             return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function VerificaDNIAlumno($datos)
+    {
+        $items = [];
+        try{
+            $query = $this->db->connect()->prepare("
+            SELECT count(idparticipante) as cantidad
+            from participante_detalle
+            where dni=:dni");
+            $query->execute([
+                'dni'  => $datos['dni']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items["data"][]  = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+
+            return $items;
+
         }catch(PDOException $e){
             return [];
         }

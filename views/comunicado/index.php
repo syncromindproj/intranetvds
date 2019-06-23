@@ -5,7 +5,11 @@
 <!-- CSS adjustments for browsers with JavaScript disabled -->
 <noscript><link rel="stylesheet" href="<?PHP echo constant('URL'); ?>views/public/css/jquery.fileupload-noscript.css"></noscript>
 <noscript><link rel="stylesheet" href="<?PHP echo constant('URL'); ?>views/public/css/jquery.fileupload-ui-noscript.css"></noscript>
-
+<style>
+     .selected{
+         background-color:#acbad4 !important;
+     }
+ </style>
  <!-- Content Wrapper. Contains page content -->
  <div class="content-wrapper">
         <!-- Content Header (Page header) -->
@@ -21,12 +25,40 @@
             </ol>
         </section>
 
+        <!-- Div Asignar Alumnos -->
+        <div id="md_asignaralumnos" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title"><span id="modal_title_fotos">Registro de Comunicados</span></h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body extrab">
+                        <input type="hidden" id="txt_id">
+                        <table id="alumnos" class="table table-striped table-bordered" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Nombres</th>
+                                    <th>Apellidos</th>
+                                    <th>Grupo</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Div -->
+
         <!-- Div Nuevos Comunicados -->
         <div id="md_nuevo" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 class="modal-title"><span id="modal_title_fotos">E-taller Registro de Fotos</span></h3>
+                        <h3 class="modal-title"><span id="modal_title_fotos">Registro de Comunicados</span></h3>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
@@ -34,15 +66,12 @@
                     <div class="modal-body extrab">
                         <form id="fileupload" method="POST" enctype="multipart/form-data">
                         <div class="row">
-                            <div class="col-md-4 form-group">
-                                <label for="sl_grupo">Grupo</label>
-                                <select id="sl_grupo" class="form-control" required></select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="txt_descripcion">Descripcion</label>
+                            <div class="col-md-12">
+                                <label for="txt_descripcion">Nombre del comunicado</label>
                                 <input required type="text" class="form-control" id="txt_descripcion" name="txt_descripcion" >
                             </div>
                         </div>
+                        
                         <div class="row">
                             <div class="col-md-12">
                                 <!-- The file upload form used as target for the file upload widget -->
@@ -159,8 +188,8 @@
                             <table id="comunicado_tabla" class="table table-striped table-bordered" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th>Grupo</th>
                                         <th>Descripcion</th>
+                                        <th>Asignado</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
@@ -191,6 +220,27 @@
           </div>
         </div>
         <!-- End Delete Modal -->
+
+        <!-- Enviar Modal -->
+        <div class="modal modal-primary fade" id="modal_enviar">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">¿Desea enviar el comunicado?</h4>
+              </div>
+              <div class="modal-body">
+                <p><span id="sp_mensaje_enviar"></span></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn_enviar_comunicado" data-value="" class="btn btn-outline">Enviar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Enviar Modal -->
 </div>
 
 <!-- Main Footer -->
@@ -199,6 +249,8 @@
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/b-1.5.4/b-html5-1.5.4/r-2.2.2/datatables.min.css"/>
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/b-1.5.4/b-html5-1.5.4/r-2.2.2/datatables.min.js"></script>
+<script src="https://nightly.datatables.net/select/js/dataTables.select.js?_=9a6592f8d74f8f520ff7b22342fa1183"></script>
+
 
 <!-- Uploader -->
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
@@ -231,11 +283,13 @@
 <script src="<?PHP echo constant('URL'); ?>views/public/js/jquery.fileupload-ui.js"></script>
 
 <script>
-    var comunicados   = "";
-    //var horario_detalle = "";
+    var comunicados = "";
+    var alumnos     ="";
+    
     $(document).ready(function() {
         var idgrupo = "";
         var opcion = "";
+        var selected = [];
         cargaGrupos();
 
         comunicados = $('#comunicado_tabla').DataTable( {
@@ -252,10 +306,6 @@
 			"columnDefs":[
 			    {
 			        "targets": [0],
-                    "data":"grupo"
-			    },
-                {
-			        "targets": [1],
                     "data":"descripcion",
                     "render": function(url, type, full){
                         var url = full.url;
@@ -269,7 +319,29 @@
                     "data":"idcomunicado",
                     "render": function(url, type, full){
                         var idcomunicado = full[0];
-                        return '<button type="button" onclick="eliminar_comunicado('+ idcomunicado +');" class="btn btn-danger"><i class="fa fa-trash"></i></button> '
+                        var estado = full['estado'];
+                        if(estado==1){
+                            return '<button type="button" onclick="enviar_comunicado('+ idcomunicado +');" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Enviar Comunicado</button> <button type="button" onclick="eliminar_comunicado('+ idcomunicado +');" class="btn btn-danger"><i class="fa fa-trash"></i></button> '
+                        }
+
+                        if(estado==0){
+                            return '<button type="button" class="btn btn-success"><i class="fa fa-check-circle"></i> Comunicado Enviado</button> <button type="button" onclick="eliminar_comunicado('+ idcomunicado +');" class="btn btn-danger"><i class="fa fa-trash"></i></button> '
+                        }
+                        return false;
+                    }
+                },
+                {
+                    "targets":[1],
+                    "data":"asignado",
+                    "render": function(url, type, full){
+                        var asignado = full.estado;
+                        var str = "ASIGNADO";
+                        if(asignado == 0){
+                            str = full.numero_alumnos + " ALUMNO(S) ASIGNADO(S)";
+                        }else{
+                            str = "<a href='#' onclick='asignar("+full.idcomunicado+");'>"+ full.numero_alumnos +" ALUMNO(S) ASIGNADO(S)</a>";
+                        }
+                        return str;
                         return false;
                     }
                 }
@@ -297,7 +369,6 @@
 
                         $('#fileupload').bind('fileuploadsubmit', function (e, data) {
                             var inputs = data.context.find(':input');
-                            var grupo       = $("#sl_grupo").val();
                             var descripcion = $("#txt_descripcion").val();
                             if (inputs.filter(function () {
                                     return !this.value && $(this).prop('required');
@@ -307,7 +378,6 @@
                             }
                             var datos = inputs.serializeArray();
                             data.formData = { 
-                                'grupo': grupo, 
                                 'descripcion' : descripcion
                             }
                         });
@@ -342,7 +412,140 @@
             });
             
         });
+
+
+        alumnos = $('#alumnos').DataTable( {
+            "dom": "Blfrtip",
+            "ajax": "<?PHP echo constant('URL'); ?>alumno/getAlumnos",
+            "rowId": "0",
+            "select": {
+                style: 'multi'
+            },
+            "responsive":true,
+            "ordering": true,
+            "bDestroy": true,
+            "scrollX": false,
+            "pageLength": 5,
+            "scrollCollapse": true,
+            "fixedColumns":   {
+                "leftColumns": 2
+            },
+            "language":{
+                "url":"https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+            },
+            "columnDefs":[
+                {
+                    "targets": 0,
+                    "data": "idparticipante"
+                },   
+                {
+                    "targets": 1,
+                    "data": "nombres"
+                },            
+                {
+                    "targets": 2,
+                    "data": "apellidos",
+                },            
+                {
+                    "targets": 3,
+                    "data": "grupo"
+                }        
+            ],
+            "dom": 'Bfrtip',
+            "buttons": [
+                {
+                    "text": "Seleccionar todos",
+                    action: function ( e, dt, node, config ) {
+                        alumnos.rows({ search: 'applied' }).select();
+                    }
+                },
+                {
+                    "text": "Deseleccionar todos",
+                    action: function ( e, dt, node, config ) {
+                        alumnos.rows({ search: 'applied' }).deselect();
+                    }
+                },
+                {
+                    "text": "Asignar Alumnos",
+                    action: function ( e, dt, node, config ) {
+                        selected = [];
+                        var filas = alumnos.rows( { selected: true } ).data();
+                        if(filas.count() > 0){
+                            for(var x = 0;x<filas.count();x++){
+                                selected.push(filas[x].idparticipante);
+                            }
+                            var datos = {};
+                            datos['idcomunicado'] = $("#txt_id").val();
+                            datos['alumnos'] = selected;
+                            console.log(datos);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "<?PHP echo constant('URL'); ?>comunicado/AsignarComunicado",
+                                data: {
+                                    datos: datos
+                                },
+                                success:function(result){
+                                    console.log(result);
+                                    comunicados.ajax.reload();
+                                },
+                                error: function(result){
+                                    console.log(result);
+                                }
+                            });
+
+                            $("#md_asignaralumnos").modal("hide");
+                            
+                        }else{
+                            alert("Seleccione por lo menos un alumno");
+                        }
+                    }
+                }
+            ]
+        } );
+
+        alumnos
+            .order( [ 2, 'asc' ] )
+            .draw();
+
+        $("#btn_enviar_comunicado").click(function(){
+            var idcomunicado = $("#btn_enviar_comunicado").attr("data-value");
+            $("#modal_enviar").modal('hide');
+            var info = {};
+            info["idcomunicado"] = idcomunicado;
+            var datos = JSON.stringify(info);
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>comunicado/EnviarComunicado", 
+                data:{
+                    datos: datos
+                },
+                success:function(result){
+                    console.log(result);
+                    comunicados.ajax.reload();
+                },
+                error:function(result){
+                    console.log(result);
+                }
+            });
+        });
+        
     });
+
+    function asignar(id){
+        alumnos.page( 'first' ).draw( 'page' );
+        alumnos.rows().deselect();
+        $("#md_asignaralumnos").modal();
+        asignar_alumnos(id);
+        $("#txt_id").val(id);
+    }
+
+    function enviar_comunicado(id)
+    {
+        $("#modal_enviar").modal();
+        $("#sp_mensaje_enviar").html("Al aceptar el comunicado se enviará por correo electrónico y no podrá ser modificado.");
+        $("#btn_enviar_comunicado").attr("data-value", id);
+    }
 
     function cargaGrupos()
     {
@@ -367,6 +570,38 @@
         $("#modal_delete").modal();
         $("#sp_mensaje").html("¿Desea eliminar el comunicado?");
         $("#btn_elimina").attr("data-value", idcomunicado);
+    }
+
+    function asignar_alumnos(id)
+    {
+        var info                = {};
+        info["idcomunicado"]    = id;
+        var datos               = JSON.stringify(info);
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>alumno/getAlumnosComunicado", 
+            datatype: "json",
+            data:{
+                datos: datos
+            },
+            success: function(result){
+                console.log(result);
+                var datos = JSON.parse(result);
+                for(var x=0;x<datos.data.length;x++){
+                    var idalumno = datos.data[x].idparticipante;
+                    alumnos.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                        var data = this.data();
+                        if(data.idparticipante == idalumno){
+                            alumnos.row(this).select();
+                        }
+                    } ); 
+                }
+            },
+            error: function(result){
+                console.log(result);
+            }
+        });
+        
     }
 
 </script>

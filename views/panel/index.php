@@ -104,7 +104,66 @@
     <!-- Main content -->
     <section class="content">
         <div class="row">
-            <section class="col-lg-6 connectedSortable">
+            <section class="col-lg-4 connectedSortable">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <i class="ion ion-clipboard"></i>
+                        <h3 class="box-title">Eventos Programados</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body" id="div_eventos">
+                        
+                        
+                    </div>
+                </div>
+            
+            </section>
+            <section class="col-lg-4 connectedSortable">
+            <!-- TO DO List -->
+            <div class="box box-primary">
+                <div class="box-header">
+                    <i class="ion ion-clipboard"></i>
+                    <h3 class="box-title">Comunicados</h3>
+                </div>
+                <div class="box-body">
+                    <ul class="todo-list" id="lista_comunicados">
+                        
+                        
+                    </ul>
+                    </div>
+                <div class="box-footer clearfix no-border">
+                
+                </div>
+            </div>
+            <!-- /.box -->
+            </section>
+            <section class="col-lg-4 connectedSortable">
+            <!-- TO DO List -->
+            <div class="box box-primary">
+                <div class="box-header">
+                <i class="ion ion-clipboard"></i>
+
+                <h3 class="box-title">Materiales Disponibles</h3>
+
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
+                <ul class="todo-list" id="div_docrecibidos">
+                    
+                </ul>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer clearfix no-border">
+                
+                </div>
+            </div>
+            <!-- /.box -->
+            </section>
+        </div>
+
+        <div class="row">
+            <section class="col-lg-12 connectedSortable">
                 <div class="box box-primary">
                     <div class="box-header">
                         <i class="ion ion-clipboard"></i>
@@ -124,65 +183,7 @@
                 </div>
             
             </section>
-            <section class="col-lg-6 connectedSortable">
-            <!-- TO DO List -->
-            <div class="box box-primary">
-                <div class="box-header">
-                <i class="ion ion-clipboard"></i>
-
-                <h3 class="box-title">Documentos Recibidos</h3>
-
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
-                <ul class="todo-list">
-                    <li>
-                        <!-- drag handle -->
-                        <!--span class="handle">
-                                <i class="fa fa-ellipsis-v"></i>
-                                <i class="fa fa-ellipsis-v"></i>
-                            </span-->
-                        <!-- checkbox -->
-                        <!--input type="checkbox" value=""-->
-                        <!-- todo text -->
-                        <span class="text">Material 1</span>
-                        <!-- Emphasis label -->
-                        <!--small class="label label-danger"><i class="fa fa-clock-o"></i> 2 mins</small-->
-                        <!-- General tools such as edit or delete-->
-                        <div class="tools">
-                            <i class="fa fa-edit"></i>
-                            <i class="fa fa-trash-o"></i>
-                        </div>
-                    </li>
-                    <li>
-                        <!-- drag handle -->
-                        <!--span class="handle">
-                                <i class="fa fa-ellipsis-v"></i>
-                                <i class="fa fa-ellipsis-v"></i>
-                            </span-->
-                        <!-- checkbox -->
-                        <!--input type="checkbox" value=""-->
-                        <!-- todo text -->
-                        <span class="text">Material 2</span>
-                        <!-- Emphasis label -->
-                        <!--small class="label label-danger"><i class="fa fa-clock-o"></i> 2 mins</small-->
-                        <!-- General tools such as edit or delete-->
-                        <div class="tools">
-                            <i class="fa fa-edit"></i>
-                            <i class="fa fa-trash-o"></i>
-                        </div>
-                    </li>
-                    
-                </ul>
-                </div>
-                <!-- /.box-body -->
-                <div class="box-footer clearfix no-border">
-                
-                </div>
-            </div>
-            <!-- /.box -->
-            </section>
+            
         </div>
         
     </section>
@@ -289,11 +290,115 @@
         <?PHP } ?>
 
         <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'ALU'){ ?>
+            get_grupo();
+            var idparticipante = $("#txt_idparticipante").val();
             var idgrupo = "";
             var info            = {};
             info["usuario"]     = '<?PHP echo($_SESSION['usuario']); ?>';
             var myJsonString    = JSON.stringify(info);
-            console.log(myJsonString);
+            //console.log(myJsonString);
+
+            var infoparticipante = {};
+            infoparticipante['idalumno'] = idparticipante;
+            var datos_participante = JSON.stringify(infoparticipante);
+
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>comunicado/GetComunicadoByParticipante", 
+                data:{
+                    datos: datos_participante
+                },
+                success: function(result){
+                    var datos = JSON.parse(result);
+                    console.log(datos);
+                    var div_comunicados = $("#lista_comunicados");
+                    var html = "";
+                    if(datos.data.length == 0){
+                        html += "<p>Aún no hay comunicados asignados</p>";
+                    }else{
+                        for(var x=0;x<datos.data.length;x++){
+                            html += '<li>';
+                            html += '<span class="text"><a target="_blank" href="'+datos.data[x].url+'">'+ datos.data[x].descripcion +'</a></span>';
+                            html += '<div class="tools">';
+                            html += '</div>';
+                            html += '</li>';
+                        }
+                        
+                    }
+                    div_comunicados.html(html);
+                },
+                error: function(result){
+
+                }
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>evento/GetEventoByParticipante", 
+                data:{
+                    datos: datos_participante
+                },
+                success: function(result){
+                    console.log(result);
+                    var datos = JSON.parse(result);
+                    var div_eventos = $("#div_eventos");
+                    var html = "";
+                    if(datos.data.length == 0){
+                        html += "<p>Aún no hay eventos asignados</p>";
+                    }else{
+                        for(var x=0;x<datos.data.length;x++){
+                            html += '<div class="box box-default collapsed-box">';
+                            html += '<div class="box-header with-border">';
+                            html += '<h3 class="box-title">'+ datos.data[x].titulo +'</h3>';
+                            html += '<div class="box-tools pull-right">';
+                            html += '<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>';
+                            html += '</button>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '<div class="box-body">';
+                            html += '<p><b>Descripción: </b>' + datos.data[x].descripcion + '</p>';
+                            html += '<p><b>Fecha: </b>' + datos.data[x].fecha + '</p>';
+                            html += '<p><b>Hora: </b>' + datos.data[x].hora + '</p>';
+                            html += '</div>';
+                            html += '</div>';
+                        }
+                    }
+                    div_eventos.html(html);
+                },
+                error: function(result){
+                    console.log(result);
+                }
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>material/GetMaterialByParticipante", 
+                data:{
+                    datos: datos_participante
+                },
+                success: function(result){
+                    var datos = JSON.parse(result);
+                    console.log(datos.data.length);
+                    var div_docrecibidos = $("#div_docrecibidos");
+                    var html = "";
+                    if(datos.data.length == 0){
+                        html += "<p>Aún no hay materiales asignados</p>";
+                    }else{
+                        for(var x=0;x<datos.data.length;x++){
+                            html += '<li>';
+                            html += '<span class="text"><a title="'+ datos.data[x].descripcion +'" target="_blank" href="'+datos.data[x].url+'">'+ datos.data[x].titulo +'</a></span>';
+                            html += '<div class="tools">';
+                            html += '</div>';
+                            html += '</li>';
+                        }
+                        
+                    }
+                    div_docrecibidos.html(html);
+                },
+                error: function(result){
+
+                }
+            });
             
             $.ajax({
                 type: "POST",
@@ -423,5 +528,31 @@
         // Create pie or douhnut chart
         // You can switch between pie and douhnut using the method below.
         pieChart.Doughnut(PieData, pieOptions);
+    }
+
+    function get_grupo(){
+        var info        = {};
+        info["id"]    = '<?PHP echo($_SESSION['idparticipante']); ?>';
+        var myJsonString  = JSON.stringify(info);
+        console.log(myJsonString);
+
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>grupo/GetGrupoParticipante", 
+            data:{
+                datos: myJsonString
+            },
+            success: function(result){
+                var datos = JSON.parse(result);
+                $("#txt_grupoparticipante").val(datos.data[0].idgrupo);
+                console.log(datos);
+            },
+            error:function(result){
+                console.log(result);
+            },
+            complete: function() {
+                //setInterval(GetInfoPanel(tipo, div), 5000); 
+            }
+        });
     }
 </script>

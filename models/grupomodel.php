@@ -233,5 +233,41 @@ class GrupoModel extends Model{
         }
     }
 
+    public function GetGrupoParticipante($id)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("SELECT 
+            g.idgrupo,
+            g.descripcion
+            FROM grupo_participante gp 
+            inner join grupo g
+            on g.idgrupo = gp.idgrupo
+            WHERE gp.idparticipante = :idparticipante");
+
+            try{
+                $query->execute([
+                    'idparticipante' => $id
+                ]);      
+    
+                while($row =  $query->fetch()){
+                    $items['data'][] = $row;
+                }
+    
+                if(count($items) == 0){
+                    $items['data'] = "";
+                }
+                
+                return $items;
+            }catch(PDOException $e){
+                return null;
+            }
+            
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
 }
 ?>

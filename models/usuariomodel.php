@@ -61,5 +61,39 @@ class UsuarioModel extends Model
             return [];
         }
     }
+
+    public function ActualizaAprobacionReglamento($usuario)
+    {
+        try{
+            $query = $this->db->connect()->prepare("
+            update usuario
+            set reglamento=1
+            WHERE idusuario = :usuario");
+            $query->execute([
+                'usuario'  => $usuario
+            ]);
+            
+            return "OK";
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
+
+    public function ActualizaAprobacionPagos($usuario)
+    {
+        try{
+            $query = $this->db->connect()->prepare("
+            update usuario
+            set pagos=1
+            WHERE idusuario = :usuario");
+            $query->execute([
+                'usuario'  => $usuario
+            ]);
+            
+            return "OK";
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
 }
 ?>

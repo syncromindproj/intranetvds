@@ -1,4 +1,6 @@
 <?PHP require 'views/header.php'; ?>
+<link href='<?PHP echo constant('URL'); ?>views/public/css/bootstrap-datepicker.min.css' rel='stylesheet' />  <!-- Content Wrapper. Contains page content -->
+<link href='<?PHP echo constant('URL'); ?>views/public/css/bootstrap-datetimepicker.min.css' rel='stylesheet' />  <!-- Content Wrapper. Contains page content -->
 
  <!-- Content Wrapper. Contains page content -->
  <div class="content-wrapper">
@@ -10,7 +12,7 @@
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="#">E-taller</a></li>
+                <li><a href="#">Intranet</a></li>
                 <li class="active">Listado de Registros</li>
             </ol>
         </section>
@@ -81,6 +83,27 @@
                 </div>
             </div>
 
+            <!-- Delete Modal -->
+            <div class="modal modal-danger fade" id="modal-delete">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">¿Eliminar Registro?</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="mensaje_elimina"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btn_elimina" data-value="" class="btn btn-outline">Eliminar</button>
+                </div>
+                </div>
+            </div>
+            </div>
+            <!-- End Delete Modal -->
+
             <div id="md_asignar" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-md" role="document">
                     <div class="modal-content">
@@ -94,45 +117,28 @@
                         <form id="frm_asignar" method="POST">
                             <div class="form-row">
                                 <div class="col-4">
-                                    <label for="sl_dia">Día</label>
-                                    <select required id="sl_dia" class="form-control" required>
-                                        <option value="">Seleccione un día</option>
-                                        <option value="1">Lunes</option>
-                                        <option value="2">Martes</option>
-                                        <option value="3">Miercoles</option>
-                                        <option value="4">Jueves</option>
-                                        <option value="5">Viernes</option>
-                                        <option value="6">Sábado</option>
-                                        <option value="7">Domingo</option>
-                                    </select>
+                                    <label for="txt_fecha">Fecha</label>
+                                    <input required type="text" class="form-control" id="txt_fecha" name="txt_fecha" placeholder="Fecha">
                                 </div>
                             </div>
                             <div class="form-row" style="margin-top:20px;">
                                 <div class="col-4">
-                                    <label for="sl_horainicio">Hora Inicio</label>
-                                    <select class="form-control" required name="sl_horainicio" id="sl_horainicio">
-                                        <option value="">Elija el horario inicial</option>
-                                        <?PHP
-                                            for($hours=0; $hours<24; $hours++) // the interval for hours is '1'
-                                            for($mins=0; $mins<60; $mins+=30) // the interval for mins is '30'
-                                                echo '<option>'.str_pad($hours,2,'0',STR_PAD_LEFT).':'
-                                                               .str_pad($mins,2,'0',STR_PAD_LEFT).'</option>';
-                                        ?>
-                                    </select>
+                                    <div class='input-group date' id='controlhora1'>
+                                        <input type='text' class="form-control" id="txt_hora_inicio" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row" style="margin-top:20px;">
                                 <div class="col-4">
-                                    <label for="sl_horafinal">Hora Final</label>
-                                    <select class="form-control" required name="sl_horafinal" id="sl_horafinal">
-                                        <option value="">Elija el horario Final</option>
-                                        <?PHP
-                                            for($hours=0; $hours<24; $hours++) // the interval for hours is '1'
-                                            for($mins=0; $mins<60; $mins+=30) // the interval for mins is '30'
-                                                echo '<option>'.str_pad($hours,2,'0',STR_PAD_LEFT).':'
-                                                               .str_pad($mins,2,'0',STR_PAD_LEFT).'</option>';
-                                        ?>
-                                    </select>
+                                    <div class='input-group date' id='controlhora2'>
+                                        <input type='text' class="form-control" id="txt_hora_final" />
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row" style="margin-top:20px;">
@@ -169,14 +175,38 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/b-1.5.4/b-html5-1.5.4/r-2.2.2/datatables.min.css"/>
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/b-1.5.4/b-html5-1.5.4/r-2.2.2/datatables.min.js"></script>
 
+<script src='<?PHP echo constant('URL'); ?>views/public/js/bootstrap-datepicker.min.js'></script>
+<script src='<?PHP echo constant('URL'); ?>views/public/js/bootstrap-datepicker.es.min.js'></script>
+<script src='<?PHP echo constant('URL'); ?>views/public/js/moment.min.js'></script>
+<script src='<?PHP echo constant('URL'); ?>views/public/js/bootstrap-datetimepicker.js'></script>
+
 <script>
     var horarios        = "";
     var horario_detalle = "";
-
+    
     $(document).ready(function() {
         var idgrupo = "";
         var opcion = "";
         cargaGrupos();
+
+        $('#controlhora1').datetimepicker({
+            format: 'LT',
+            locale: 'es'
+        });
+
+        $('#controlhora2').datetimepicker({
+            format: 'LT',
+            locale: 'es'
+        });
+
+        $('#txt_fecha').datepicker({
+            maxViewMode: 2,
+            language: "es"
+        });
+
+        $('#txt_fecha').on('changeDate', function(ev){
+            $(this).datepicker('hide');
+        });
 
         horarios = $('#horario_tabla').DataTable( {
 		    "ajax": "<?PHP echo constant('URL'); ?>horario/GetHorarios",
@@ -203,7 +233,7 @@
                     "data":"idhorario",
                     "render": function(url, type, full){
                         var idhorario = full[0];
-                        return '<button type="button" onclick="asignar_grupo('+ idhorario +');" class="btn btn-warning"><i class="fa fa-plus-square"></i> Registrar Horas</button> '
+                        return '<button type="button" onclick="asignar_grupo('+ idhorario +');" class="btn btn-warning"><i class="fa fa-plus-square"></i> Registrar Horas</button> <button onclick="alert_elimina('+ idhorario +');" title="Eliminar horario" class="btn btn-danger"><i class="fa fa-trash"></i></button>'
                         return false;
                     }
                 }        
@@ -258,14 +288,17 @@
         $("#frm_asignar").submit(function(event){
             event.preventDefault();
             var idhorario       = $("#btn_registrar").attr("data-value");
-            var dia             = $("#sl_dia").val();
-            var hora_inicio     = $("#sl_horainicio").val();
-            var hora_final      = $("#sl_horafinal").val();
+            var dia             = $("#txt_fecha").val();
+            var date            = moment(dia, 'DD-MM-YYYY')
+            var fecha           = date.format('YYYY-MM-DD');
+
+            var hora_inicio     = $("#txt_hora_inicio").val();
+            var hora_final      = $("#txt_hora_final").val();
             var info            = {};
             info["idhorario"]   = idhorario;
-            info["dia"]         = dia;
-            info["hora_inicio"] = hora_inicio;
-            info["hora_final"]  = hora_final;
+            info["dia"]         = fecha;
+            info["hora_inicio"] = moment(hora_inicio, 'hh:mm A').format('HH:mm');
+            info["hora_final"]  = moment(hora_final, 'hh:mm A').format('HH:mm');
             var myJsonString    = JSON.stringify(info);
             $.ajax({
                 type: "POST",
@@ -288,6 +321,27 @@
         
         });
 
+        $("#btn_elimina").click(function(){
+            var id = $("#btn_elimina").attr("data-value");
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>horario/EliminaHorario", 
+                data:{
+                    datos: '{"idhorario": "' + id + '"}'
+                },
+                success: function(result){
+                    console.log(result);
+                    $('#modal-delete').modal('hide');
+                    horarios.ajax.reload();	
+                    $("#mensaje_confirmacion").html(result);
+                    $("#confirm_data").show().delay(2000).fadeOut();
+                },
+                error:function(result){
+                    console.log(result);
+                }
+            });
+        });
+
         
     });
 
@@ -308,6 +362,13 @@
                 });
             }
         });
+    }
+
+    function alert_elimina(idhorario)
+    {
+        $('#modal-delete').modal();
+        $("#mensaje_elimina").html("Desea eliminar el horario: " + idhorario + "?");
+        $("#btn_elimina").attr("data-value", idhorario);
     }
 
     function asignar_grupo(id)
@@ -346,7 +407,7 @@
 			"columnDefs":[
 			    {
 			        "targets": [0],
-                    "data":"dia_str"
+                    "data":"dia"
 			    },
                 {
 			        "targets": [1],

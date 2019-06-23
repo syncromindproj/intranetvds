@@ -1,6 +1,6 @@
 <?php
   session_start();
-  if(!isset($_SESSION['nombres'])){
+  if(!isset($_SESSION['nombres']) && $this->title != "Registro"){
     header("Location:/intranet");
   }
 ?>
@@ -71,6 +71,8 @@ desired effect
 |---------------------------------------------------------|
 -->
 <body class="hold-transition skin-blue sidebar-mini">
+<input type="hidden" id="txt_idparticipante" value="<?PHP echo($_SESSION['idparticipante']); ?>" />
+<input type="hidden" id="txt_grupoparticipante" value="" />
 <div class="wrapper">
     
   <!-- Main Header -->
@@ -104,9 +106,11 @@ desired effect
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <!-- The user image in the navbar-->
+              <?PHP if($this->title != "Registro"){ ?>
               <img id="foto_perfil1" src="<?PHP echo constant('URL'); ?>views/dist/img/avatar2.png" class="user-image" alt="User Image">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
               <span class="hidden-xs"><?php echo($_SESSION['nombres']); ?> </span>
+              <?PHP } ?>
             </a>
             <ul class="dropdown-menu">
               <!-- The user image in the menu -->
@@ -141,6 +145,7 @@ desired effect
     <section class="sidebar">
 
       <!-- Sidebar user panel (optional) -->
+      <?PHP if($this->title != "Registro"){ ?>
       <div class="user-panel">
         <div class="pull-left image">
           <img src="<?PHP echo constant('URL'); ?>views/dist/img/avatar2.png" class="img-circle" alt="User Image">
@@ -151,7 +156,7 @@ desired effect
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
-
+      <?PHP } ?>
       
       <!-- Sidebar Menu -->
       <?PHP require 'views/menu.php'; ?>

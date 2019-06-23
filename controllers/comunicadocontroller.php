@@ -24,7 +24,6 @@ class ComunicadoController extends Controller
         $img            = $_FILES["files"]["name"][0];
         $tmp            = $_FILES["files"]["tmp_name"][0];
         $errorimg       = $_FILES["files"]["error"][0];
-        $grupo          = $_REQUEST['grupo'];
         $descripcion    = $_REQUEST['descripcion'];
         $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
         
@@ -35,7 +34,7 @@ class ComunicadoController extends Controller
         
         if(move_uploaded_file($tmp,$path)) 
         {
-            $comunicado = $this->model->InsertaComunicado($grupo, $path, $descripcion);
+            $comunicado = $this->model->InsertaComunicado($path, $descripcion);
             echo(json_encode($comunicado));
         }
         
@@ -48,6 +47,29 @@ class ComunicadoController extends Controller
         $comunicado = $this->model->EliminaComunicado($datos["idcomunicado"]);
         echo json_encode($comunicado);
         
+    }
+
+    public function AsignarComunicado()
+    {
+        $datos = $_REQUEST['datos'];
+        $comunicado = $this->model->AsignarComunicado($datos);
+        echo json_encode($comunicado);
+    }
+
+    public function GetComunicadoByParticipante()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $comunicados = $this->model->GetComunicadoByParticipante($datos);
+        echo json_encode($comunicados);
+    }
+
+    public function EnviarComunicado()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $comunicados = $this->model->EnviarComunicado($datos);
+        echo $comunicados;
     }
 }
 ?>

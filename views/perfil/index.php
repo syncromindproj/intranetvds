@@ -51,7 +51,7 @@
 
                     <ul class="list-group list-group-unbordered">
                     <li class="list-group-item">
-                        <b>Grupo</b> <a class="pull-right">Grupo del Sol</a>
+                        <b>Grupo</b> <a class="pull-right" id="grupo_lbl"></a>
                     </li>
                     </ul>
                         <input type="submit" class="btn btn-primary btn-block" value="Cambiar Imagen" />
@@ -259,6 +259,7 @@
         });
 
         ver_docente();
+        get_grupo();
 
         $("#btn_actualizar").click(function(){
             var id          = '<?PHP echo($_SESSION['idparticipante']); ?>';
@@ -315,6 +316,32 @@
                 $("#foto_perfil2").attr("src", docente[0].imagen);
                 $("#foto_perfil3").attr("src", docente[0].imagen);
                 console.log(docente);
+            },
+            error:function(result){
+                console.log(result);
+            },
+            complete: function() {
+                //setInterval(GetInfoPanel(tipo, div), 5000); 
+            }
+        });
+    }
+
+    function get_grupo(){
+        var info        = {};
+        info["id"]    = '<?PHP echo($_SESSION['idparticipante']); ?>';
+        var myJsonString  = JSON.stringify(info);
+        console.log(myJsonString);
+
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>grupo/GetGrupoParticipante", 
+            data:{
+                datos: myJsonString
+            },
+            success: function(result){
+                var datos = JSON.parse(result);
+                $("#grupo_lbl").html(datos.data[0].descripcion);
+                console.log(datos);
             },
             error:function(result){
                 console.log(result);

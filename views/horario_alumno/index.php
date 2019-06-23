@@ -83,23 +83,39 @@
     var d    = date.getDate(),
         m    = date.getMonth(),
         y    = date.getFullYear()
-    $('#calendar').fullCalendar({
-      header    : {
-        left  : 'prev,next today',
-        center: 'title',
-        right : 'month,agendaWeek,agendaDay'
+
+    var info = {};
+    info["idparticipante"] = '26';
+    var datos = JSON.stringify(info);
+    var eventos = [];
+
+    $.ajax({
+      type:"POST",
+      url: "<?PHP echo constant('URL'); ?>horario/GetHorarioParticipante", 
+      data:{
+        datos: datos
       },
-      buttonText: {
-        today: 'today',
-        month: 'month',
-        week : 'week',
-        day  : 'day'
+      async:false,
+      success: function(result){
+        var datos = JSON.parse(result);
+        for(var x=0;x<datos.data.length;x++){
+          var info = {};
+          info["title"] = datos.data[x].descripcion;
+          info["start"] = datos.data[x].dia_panel + ' ' + datos.data[x].hora_inicio;
+          info["end"] = datos.data[x].dia_panel + ' ' + datos.data[x].hora_fin;
+          eventos.push(info);
+        }
+        console.log(eventos);
       },
-      //Random default events
-      events    : [
+      error: function(result){
+        console.log(result);
+      }
+    });
+
+    var events = [
         {
             title:"Clase 1",
-            start: '16:00', // a start time (10am in this example)
+            start: '201916:00', // a start time (10am in this example)
             end: '17:30', // an end time (2pm in this example)
             dow: [ 1, 4 ], // Repeat monday and thursday
             backgroundColor: '#00c0ef', //Info (aqua)
@@ -113,7 +129,23 @@
             backgroundColor: '#00a65a', //Success (green)
             borderColor    : '#00a65a' //Success (green)
         }
-      ],
+      ];
+
+    $('#calendar').fullCalendar({
+      header    : {
+        left  : 'prev,next today',
+        center: 'title',
+        right : 'month,agendaWeek,agendaDay'
+      },
+      displayEventEnd:true,
+      buttonText: {
+        today: 'today',
+        month: 'month',
+        week : 'week',
+        day  : 'day'
+      },
+      //Random default events
+      events    : eventos,
       editable  : true,
       droppable : true, // this allows things to be dropped onto the calendar !!!
       drop      : function (date, allDay) { // this function is called when something is dropped

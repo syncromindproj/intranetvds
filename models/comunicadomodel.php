@@ -12,12 +12,17 @@ class ComunicadoModel extends Model
 
         try{
             $query = $this->db->connect()->prepare("
-            select c.idcomunicado, g.descripcion as grupo, c.url, c.descripcion from comunicado c
-            inner join grupo g
-            on g.idgrupo = c.idgrupo where c.estado=1");
-            /*$query->execute([
-                'idhorario'       => $datos['idhorario']
-            ]);*/
+            select 
+            c.idcomunicado, 
+            c.url, 
+            c.descripcion,
+            COALESCE(ca.idcomunicado, '0') as asignado,
+            count(ca.id_comunicadoalumno) as numero_alumnos,
+            c.estado
+            from comunicado c
+            left join comunicado_alumno ca
+            on ca.idcomunicado = c.idcomunicado
+            group by c.idcomunicado");
             $query->execute();
 
             while($row =  $query->fetch()){
@@ -34,14 +39,13 @@ class ComunicadoModel extends Model
         }
     }
 
-    function InsertaComunicado($idgrupo, $url, $descripcion)
+    function InsertaComunicado($url, $descripcion)
     {
         try{
             
-            $query = $this->db->connect()->prepare('insert into comunicado (idgrupo, url, descripcion)
-            values (:idgrupo, :url, :descripcion)');
+            $query = $this->db->connect()->prepare('insert into comunicado (url, descripcion)
+            values (:url, :descripcion)');
             $query->execute([
-                'idgrupo'       => $idgrupo,
                 'url'           => $url,
                 'descripcion'   => $descripcion
             ]);
@@ -49,6 +53,30 @@ class ComunicadoModel extends Model
         }catch(PDOException $e){
             return $e->getCode();
             //die(parent::outputPDOerror($e->getCode()));
+        }
+    }
+
+    function AsignarComunicado($datos)
+    {
+        try{
+            $query = $this->db->connect()->prepare('delete from comunicado_alumno where idcomunicado = :idcomunicado');
+            $query->execute([
+                'idcomunicado'    => $datos['idcomunicado'],
+            ]);
+
+            for($x=0;$x<count($datos['alumnos']);$x++){
+                $query = $this->db->connect()->prepare('insert into comunicado_alumno (idcomunicado, idparticipante)
+                values (:idcomunicado, :idparticipante) ');
+                $query->execute([
+                    'idcomunicado'      => $datos['idcomunicado'],
+                    'idparticipante'    => $datos['alumnos'][$x]
+                ]);
+            }
+            
+            return 'Evento Asignado';
+
+        }catch(PDOException $e){
+            return $e->getCode();
         }
     }
 
@@ -71,6 +99,11 @@ class ComunicadoModel extends Model
                 'idcomunicado'   => $idcomunicado
             ]);
 
+            $query = $this->db->connect()->prepare('delete from comunicado_alumno where idcomunicado = :idcomunicado');
+            $query->execute([
+                'idcomunicado'   => $idcomunicado
+            ]);
+
             if (file_exists($archivo)) {
                 unlink($archivo);
             }
@@ -80,6 +113,51 @@ class ComunicadoModel extends Model
         }catch(PDOException $e){
             return $e->getMessage();
             
+        }
+    }
+
+    public function GetComunicadoByParticipante($datos)
+    {
+        $items = [];
+        try{
+            $query = $this->db->connect()->prepare('
+            SELECT 
+            c.descripcion,
+            c.url
+            FROM comunicado c
+            inner JOIN comunicado_alumno ca
+            on ca.idcomunicado = c.idcomunicado
+            where ca.idparticipante = :idalumno');
+            $query->execute([
+                'idalumno' => $datos['idalumno']
+            ]);
+            
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
+
+    public function EnviarComunicado($datos)
+    {
+        try{
+            $query = $this->db->connect()->prepare('
+            update comunicado set estado = 0 where idcomunicado = :idcomunicado');
+            $query->execute([
+                'idcomunicado' => $datos['idcomunicado']
+            ]);
+            
+            return "Comunicado enviado";
+        }catch(PDOException $e){
+            return $e->getCode();
         }
     }
 }

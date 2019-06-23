@@ -15,11 +15,27 @@ class ApoderadoController extends Controller
         echo json_encode($id);
     }
 
+    public function ListaHijos()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $hijos = $this->model->ListaHijos($datos);
+        echo json_encode($hijos);
+    }
+
     public function RegistraApoderado()
     {
         $datos = $_REQUEST['datos'];
         $datos = json_decode($datos, true);
         $id = $this->model->RegistraApoderado($datos);
+        echo $id;
+    }
+
+    public function InsertaAlumnoApoderado()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $id = $this->model->InsertaAlumnoApoderado($datos);
         echo $id;
     }
 
@@ -45,6 +61,14 @@ class ApoderadoController extends Controller
         $datos = json_decode($datos, true);
         $id = $this->model->ActualizaApoderado($datos);
         echo $id;
+    }
+
+    public function VerificaDNI()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $info = $this->model->VerificaDNI($datos);
+        echo json_encode($info);
     }
 }
 ?>

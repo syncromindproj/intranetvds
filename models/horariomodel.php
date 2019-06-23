@@ -44,17 +44,47 @@ class HorarioModel extends Model
         try{
             $query = $this->db->connect()->prepare("
             SELECT idhorario_detalle, idhorario, 
-            case 
-            when dia = 1 then 'LUNES' 
-            when dia = 2 then 'MARTES'
-            when dia = 3 then 'MIERCOLES'
-            when dia = 4 then 'JUEVES' 
-            when dia = 5 then 'VIERNES'
-            when dia = 6 then 'SABADO' 
-            when dia = 7 then 'DOMINGO' end as dia_str,
-            hora_inicio, hora_fin from horario_detalle where idhorario = :idhorario order by dia asc");
+            DATE_FORMAT(dia,'%d/%m/%Y') as dia,hora_inicio, hora_fin from horario_detalle where idhorario = :idhorario order by dia asc");
             $query->execute([
                 'idhorario'       => $datos['idhorario']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
+
+    public function GetHorarioParticipante($datos)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("
+            SELECT 
+            h.descripcion,
+            hd.*,
+            hd.dia as dia_panel,
+            DATE_FORMAT(hd.dia,'%d/%m/%Y') as dia
+            from participantes p
+            inner join grupo_participante gp
+            on p.idparticipante= gp.idparticipante
+            inner join horario h
+            on h.idgrupo = gp.idgrupo
+            inner join horario_detalle hd
+            on hd.idhorario = h.idhorario
+            where p.idparticipante = :idparticipante
+            order by hd.dia asc");
+            $query->execute([
+                'idparticipante' => $datos['idparticipante']
             ]);
 
             while($row =  $query->fetch()){
@@ -109,6 +139,19 @@ class HorarioModel extends Model
         }catch(PDOException $e){
             return $e->getCode();
         } 
+    }
+
+    public function EliminaHorario($datos)
+    {
+        $query = $this->db->connect()->prepare('delete from horario_detalle where idhorario=:idhorario');
+        $query->execute([
+            'idhorario'  => $datos['idhorario']
+        ]);
+
+        $query = $this->db->connect()->prepare('delete from horario where idhorario=:idhorario');
+        $query->execute([
+            'idhorario'  => $datos['idhorario']
+        ]);
     }
 }
 ?>

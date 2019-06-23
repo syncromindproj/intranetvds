@@ -52,5 +52,21 @@ class HorarioController extends Controller
         $horarios = $this->model->AsignarHorario($datos);
         echo $horarios;
     }
+
+    public function GetHorarioParticipante()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $horarios = $this->model->GetHorarioParticipante($datos);
+        echo(json_encode($horarios));
+    }
+
+    public function EliminaHorario()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $this->model->EliminaHorario($datos);
+        echo "Horario Eliminado";
+    }
 }
 ?>

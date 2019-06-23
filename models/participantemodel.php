@@ -60,5 +60,90 @@ class ParticipanteModel extends Model{
             return [];
         }
     }
+
+    public function InsertaAlumno($datos){
+        $items = [];
+        try{
+            $time               = $datos['txt_nacimiento'];
+            $date               = str_replace('/', '-', $time);
+            $fecha_nacimiento   = date("Y-m-d", strtotime($date));
+
+            $time               = $datos['txt_seguro_caducidad'];
+            $date               = str_replace('/', '-', $time);
+            $seguro_caducidad   = date("Y-m-d", strtotime($date));
+            
+            $query = $this->db->connect()->prepare("
+            call inserta_alumno(
+                :nombres,
+                :apellidos,
+                :correo_postulante,
+                :celular_postulante,
+                :fecha_nacimiento,
+                :distrito,
+                :centro_estudios,
+                :anio_estudios,
+                :direccion,
+                :dni,
+                :estudia_canto,
+                :donde_estudia,
+                :seguro_salud,
+                :seguro_caducidad,
+                :alergias,
+                :enfermedades,
+                :dolor_cabeza,
+                :fiebre,
+                :dolor_estomago,
+                :toma_medicamento_diario,
+                :medicamento_diario
+            )");
+            $query->execute([
+                'nombres'                   => $datos['txt_nombres'],
+                'apellidos'                 => $datos['txt_apellidos'],
+                'correo_postulante'         => $datos['txt_correo_alumno'],
+                'celular_postulante'        => $datos['txt_celular_alumno'],
+                'fecha_nacimiento'          => $fecha_nacimiento,
+                'distrito'                  => $datos['txt_distrito'],
+                'centro_estudios'           => $datos['txt_centro_estudios'],
+                'anio_estudios'             => $datos['txt_grado_instruccion'],
+                'direccion'                 => $datos['txt_direccion'],
+                'dni'                       => $datos['txt_dni'],
+                'estudia_canto'             => $datos['estudia_canto'],
+                'donde_estudia'             => $datos['txt_centro_instruccion'],
+                'seguro_salud'              => $datos['txt_seguro_salud'],
+                'seguro_caducidad'          => $seguro_caducidad,
+                'alergias'                  => $datos['txt_alergias'],
+                'enfermedades'              => $datos['txt_enfermedades'],
+                'dolor_cabeza'              => $datos['txt_dolor_cabeza'],
+                'fiebre'                    => $datos['txt_fiebre'],
+                'dolor_estomago'            => $datos['txt_dolor_estomago'],
+                'toma_medicamento_diario'   => $datos['opcion_diario'],
+                'medicamento_diario'        => $datos['txt_medicamento_diario']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items[] = $row;
+            }
+
+            if(count($items) == 0){
+                $items = "";
+            }
+
+            $query = $this->db->connect()->prepare('insert into usuario (idparticipante, idtipo, nombres, apellidos, correo, usuario, clave)
+            values (:idparticipante, :idtipo, :nombres, :apellidos, :correo, :usuario, MD5(:clave))');
+            $query->execute([
+                'idparticipante'    => $items[0]['lid'],
+                'idtipo'            => 'ALU',
+                'nombres'           => $datos['txt_nombres'],
+                'apellidos'         => $datos['txt_apellidos'],
+                'correo'            => $datos['txt_correo_alumno'],
+                'usuario'           => $datos['txt_dni'],
+                'clave'             => $datos['txt_dni']
+            ]);
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
 }
 ?>

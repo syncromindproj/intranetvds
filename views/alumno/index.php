@@ -175,7 +175,7 @@
                             <div class="col-12">
                                 <div class="nav-tabs-custom">
                                     <ul class="nav nav-tabs">
-                                        <li id="tab_datos_generales" class="active"><a href="#datos_generales" data-toggle="tab">Datos Generales del Alumno</a></li>
+                                        <li id="tab_datos_generales" class="active"><a href="#datos_generales" data-toggle="tab">Datos Generales</a></li>
                                         <li id="tab_estudios"><a href="#estudios" data-toggle="tab">Estudios</a></li>
                                         <li id="tab_salud"><a href="#salud" data-toggle="tab">Salud</a></li>
                                         <li id="tab_apoderados"><a href="#apoderados" data-toggle="tab">Padres de Familia</a></li>
@@ -234,7 +234,7 @@
                                             </div>
                                             <div class="row top-buffer">
                                                 <div class="col-md-12">
-                                                    <label for="estudia_canto">¿Estudia música en otra institución/de manera particular? </label> 
+                                                    <label for="estudia_canto">¿Estudia canto? </label> 
                                                     <label>
                                                         <input <?PHP if($_SESSION['tipo'] != "ADM"){ echo("disabled"); }?> type="radio" name="estudia_canto" id="estudia_canto" value="S" >
                                                         Sí
@@ -243,10 +243,7 @@
                                                         <input <?PHP if($_SESSION['tipo'] != "ADM"){ echo("disabled"); }?> type="radio" name="estudia_canto" id="estudia_canto" value="N" >
                                                         No
                                                     </label>
-                                                    <textarea <?PHP if($_SESSION['tipo'] != "ADM"){ echo("disabled"); }?> class="form-control" id="txt_centro_instruccion" name="txt_grado_instruccion" placeholder="¿Donde?">
-                                                    
-                                                    </textarea>
-                                                    <!--input type="text" <?PHP if($_SESSION['tipo'] != "ADM"){ echo("disabled"); }?> class="form-control" id="txt_centro_instruccion" name="txt_grado_instruccion" placeholder="¿Donde?"-->
+                                                    <input type="text" <?PHP if($_SESSION['tipo'] != "ADM"){ echo("disabled"); }?> class="form-control" id="txt_centro_instruccion" name="txt_grado_instruccion" placeholder="Centro de instrucción">
                                                 </div>
                                             </div>
                                         </div>
@@ -267,7 +264,7 @@
                                             </div>
                                             <div class="row top-buffer">
                                                 <div class="col-md-12">
-                                                    <label for="txt_enfermedades">Antecedentes Clínicos Importantes</label>
+                                                    <label for="txt_enfermedades">Enfermedades</label>
                                                     <textarea <?PHP if($_SESSION['tipo'] != "ADM"){ echo("disabled"); }?> class="form-control" id="txt_enfermedades" name="txt_enfermedades" placeholder="Enfermedades">
 
                                                     </textarea>
@@ -735,10 +732,7 @@
                 $("#txt_correo_alumno").val(datos.correo_postulante);
                 $("#txt_centro_estudios").val(datos.centro_estudios);
                 $("#txt_grado_instruccion").val(datos.anio_estudios);
-                $('input:radio[name=estudia_canto]:nth(0)').attr('checked',false);
-                $('input:radio[name=estudia_canto]:nth(1)').attr('checked',false);
                 if(datos.estudia_canto == "S"){
-                    console.log(datos.estudia_canto);
                     $('input:radio[name=estudia_canto]:nth(0)').attr('checked',true);
                 }
                 if(datos.estudia_canto == "N"){
