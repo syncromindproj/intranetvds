@@ -57,6 +57,10 @@
                                     <label for="txt_apellidos_madre">Apellidos</label>
                                     <input type="text" class="form-control" required id="txt_apellidos_madre" name="txt_apellidos_madre" placeholder="Apellidos">
                                 </div>
+                                <div class="col-md-12 form-group">
+                                    <label for="txt_nacionalidad_madre">Nacionalidad</label>
+                                    <select class="form-control" required id="sl_nacionalidad_madre" name="sl_nacionalidad_madre"></select>
+                                </div>
                                 <div class="col-md-6 form-group">
                                     <label for="txt_celular_madre">Celular</label>
                                     <input type="text" class="form-control" required id="txt_celular_madre" name="txt_celular_madre" placeholder="Celular">
@@ -121,6 +125,10 @@
                                 <div class="col-md-6 form-group">
                                     <label for="txt_apellidos_padre">Apellidos</label>
                                     <input type="text" class="form-control" required id="txt_apellidos_padre" name="txt_apellidos_padre" placeholder="Apellidos">
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <label for="txt_nacionalidad_padre">Nacionalidad</label>
+                                    <select class="form-control" required id="sl_nacionalidad_padre" name="sl_nacionalidad_padre"></select>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label for="txt_celular_padre">Celular</label>
@@ -259,11 +267,15 @@
                                                 </div>
                                             </div>
                                             <div class="row top-buffer">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
+                                                    <label for="sl_nacionalidad_hijo">Nacionalidad</label>
+                                                    <select class="form-control" required id="sl_nacionalidad_hijo" name="sl_nacionalidad_hijo"></select>
+                                                </div>
+                                                <div class="col-md-4">
                                                     <label for="txt_celular_alumno">Celular</label>
                                                     <input type="text" class="form-control" id="txt_celular_alumno" name="txt_celular_alumno" placeholder="Celular">
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <label for="txt_correo_alumno">Correo</label>
                                                     <input type="email" required class="form-control" id="txt_correo_alumno" name="txt_correo_alumno" placeholder="Correo">
                                                 </div>
@@ -292,6 +304,12 @@
                                                         No
                                                     </label>
                                                     <textarea class="form-control" id="txt_centro_instruccion" name="txt_grado_instruccion" placeholder="¿Donde?"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row top-buffer">
+                                                <div class="col-md-12">
+                                                    <label for="estudia_canto">¿Toca algún instrumento? </label> 
+                                                    <textarea class="form-control" id="txt_instrumento" name="txt_instrumento" placeholder="Indique que instrumento(s) toca"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -400,6 +418,7 @@
         
     $(document).ready(function(){
         VerHijos();
+        CargaPaises();
 
         $('#txt_nacimiento').datepicker({
 			maxViewMode: 2,
@@ -461,11 +480,13 @@
                 info["txt_distrito"] = $("#txt_distrito").val();
                 info["txt_celular_alumno"] = $("#txt_celular_alumno").val();
                 info["txt_correo_alumno"] = $("#txt_correo_alumno").val();
+                info["sl_nacionalidad_alumno"] = $("#sl_nacionalidad_hijo").val();
 
                 info["txt_centro_estudios"] = $("#txt_centro_estudios").val();
                 info["txt_grado_instruccion"] = $("#txt_grado_instruccion").val();
                 info["estudia_canto"] = $("#estudia_canto").val();
                 info["txt_centro_instruccion"] = $("#txt_centro_instruccion").val();
+                info["txt_instrumento"] = $("#txt_instrumento").val();
 
                 info["txt_seguro_salud"] = $("#txt_seguro_salud").val();
                 info["txt_seguro_caducidad"] = $("#txt_seguro_caducidad").val();
@@ -500,6 +521,7 @@
                 var correo          = $("#txt_correo_madre").val();
                 var dni             = $("#txt_dni_madre").val();
                 var direccion       = $("#txt_direccion_madre").val();
+                var nacionalidad    = $("#sl_nacionalidad_madre").val();
                 var fijo            = $("#txt_fijo_madre").val();
                 var encargado       = "0";
                 if($("#chk_pagos_madre").prop("checked")){
@@ -514,6 +536,7 @@
                 info["correo"]          = correo;
                 info["dni"]             = dni;
                 info["direccion"]       = direccion;
+                info["nacionalidad"]    = nacionalidad;
                 info["fijo"]            = fijo;
                 info["tipo"]            = 'M';
                 info["encargado"]       = encargado;
@@ -536,6 +559,7 @@
                 var correo          = $("#txt_correo_padre").val();
                 var dni             = $("#txt_dni_padre").val();
                 var direccion       = $("#txt_direccion_padre").val();
+                var nacionalidad    = $("#sl_nacionalidad_padre").val();
                 var fijo            = $("#txt_fijo_padre").val();
                 var encargado       = "0";
                 if($("#chk_pagos_padre").prop("checked")){
@@ -550,6 +574,7 @@
                 info["correo"]          = correo;
                 info["dni"]             = dni;
                 info["direccion"]       = direccion;
+                info["nacionalidad"]    = nacionalidad;
                 info["fijo"]            = fijo;
                 info["tipo"]            = 'P';
                 info["encargado"]       = encargado;
@@ -829,6 +854,7 @@
                         $("#txt_dni").val("");
                         $("#txt_direccion").val("");
                         $("#txt_distrito").val("");
+                        $("#sl_nacionalidad_hijo").val("");
                         $("#txt_celular_alumno").val("");
                         $("#txt_correo_alumno").val("");
 
@@ -862,5 +888,26 @@
                 }
 			]
 		} );
+    }
+
+    function CargaPaises()
+    {
+        $("#sl_nacionalidad_madre").append('<option value="">Seleccione una opción</option>');
+        $("#sl_nacionalidad_padre").append('<option value="">Seleccione una opción</option>');
+        $("#sl_nacionalidad_hijo").append('<option value="">Seleccione una opción</option>');
+        
+        $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: "<?PHP echo constant('URL'); ?>paises.json", 
+            success: function(result){
+                $.each(result, function(i,v){
+                    $("#sl_nacionalidad_madre").append('<option value="'+v+'">'+ v +'</option>');
+                    $("#sl_nacionalidad_padre").append('<option value="'+v+'">'+ v +'</option>');
+                    $("#sl_nacionalidad_hijo").append('<option value="'+v+'">'+ v +'</option>');
+                });
+            }
+        });
     }
 </script>

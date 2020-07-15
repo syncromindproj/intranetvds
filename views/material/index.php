@@ -300,7 +300,11 @@
 			    },
                 {
                     "targets":1,
-                    "data":"url"
+                    "data":"url",
+					"render":function(url, type, full){
+						var link = full["url"];
+						return "<a href='"+ link +"' target='_blank'>"+ link +"</a>";
+					}
                 },
                 {
                     "targets":2,

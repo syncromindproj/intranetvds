@@ -61,6 +61,14 @@ class HorarioController extends Controller
         echo(json_encode($horarios));
     }
 
+    public function GetHorariobyApoderado()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $horarios = $this->model->GetHorariobyApoderado($datos);
+        echo(json_encode($horarios));
+    }
+
     public function EliminaHorario()
     {
         $datos = $_REQUEST['datos'];

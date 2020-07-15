@@ -58,5 +58,34 @@ class Reporte_AcademicoModel extends Model
             
         }
     }
+
+    public function GetReporteByParticipante($datos)
+    {
+        $items = [];
+        try{
+            $query = $this->db->connect()->prepare('
+            SELECT 
+            i.* 
+            FROM informe_participante ip
+            inner join informe i
+            on i.idinforme = ip.idinforme
+            where ip.idparticipante = :idparticipante');
+            $query->execute([
+                'idparticipante' => $datos['idalumno']
+            ]);
+            
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
 }
 ?>

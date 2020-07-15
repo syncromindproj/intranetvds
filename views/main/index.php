@@ -64,7 +64,7 @@
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
-<body class="hold-transition login-page" style="overflow-y:hidden; background-image:url('<?PHP echo constant('URL'); ?>views/public/img/fondo.png'); background-size: cover;">
+<body class="hold-transition login-page" style="overflow-y:hidden; background-image:url('<?PHP echo constant('URL'); ?>views/public/img/back.jpg'); background-size: cover;">
 
 <div id="error_div" class="alert alert-danger alert-dismissible" style="display:none;">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -131,6 +131,7 @@
 <!-- jQuery 3 -->
 <script src="<?PHP echo constant('URL'); ?>views/bower_components/jquery/dist/jquery.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
+
 <script src="<?PHP echo constant('URL'); ?>views/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="<?PHP echo constant('URL'); ?>views/public/js/pdfobject.min.js"></script>
 <script>
@@ -213,11 +214,11 @@
                 $("#mensaje_error").html("Los datos ingresados son erroneos. Inténtelo nuevamente.");
                 $("#error_div").show().delay(2000).fadeOut();
               }else{
-                if(tipo == 'ALU' && aprobado == 1){
+                if(tipo == 'ALU'){
                   window.location = "panel";
                 }
 
-                if(tipo == 'ALU' && aprobado == 0){
+                if(tipo == 'PDF' && aprobado == 0){
                   $("#modal_pdf").modal();
                   $("#btn_acepta").attr("data-value", idusuario);
                   if(reglamento == '0'){

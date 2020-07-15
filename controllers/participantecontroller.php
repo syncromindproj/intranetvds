@@ -80,6 +80,14 @@ class ParticipanteController extends Controller{
 		
 		mail($to, $subject, $body, $headers);
     }
+
+    public function GetHijosPorApoderado()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $hijos = $this->model->GetHijosPorApoderado($datos);
+        echo json_encode($hijos);
+    }
 }
 
 ?>

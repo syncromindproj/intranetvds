@@ -1,4 +1,8 @@
 <?PHP require 'views/header.php'; ?>
+
+<!-- blueimp Gallery styles -->
+<link rel="stylesheet" href="https://blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="<?PHP echo constant('URL'); ?>views/public/css/jquery.fileupload.css">
 <link rel="stylesheet" href="<?PHP echo constant('URL'); ?>views/public/css/jquery.fileupload-ui.css">
@@ -20,8 +24,8 @@
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="#">E-taller</a></li>
-                <li class="active">Listado de Registros</li>
+                <li><a href="#">Intranet</a></li>
+                <li class="active">Gestión de Comunicados</li>
             </ol>
         </section>
 
@@ -72,7 +76,7 @@
                             </div>
                         </div>
                         
-                        <div class="row">
+                        <div class="row" style="margin-top:15px;">
                             <div class="col-md-12">
                                 <!-- The file upload form used as target for the file upload widget -->
                                     <!--form id="fileupload" method="POST" enctype="multipart/form-data"-->

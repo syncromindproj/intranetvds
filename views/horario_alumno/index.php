@@ -19,6 +19,32 @@
     <!-- Main content -->
     <section class="content">
       <div class="row">
+        <div class="col-md-2">
+        <table class="table" style="border:1px solid #000; background:#fff; padding:20px;">
+          <thead>
+            <tr>
+              <th scope="col">Clase Regular</th>
+              <th scope="col">Ensayo</th>
+              <th scope="col">Ensayos Generales</th>
+              <th scope="col">Otros</th>
+              <th scope="col">Eventos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="background:#3c8dbc; width:10px;"></td>
+              <td style="background:#F0673A; width:10px;"></td>
+              <td style="background:#CCD258; width:10px;"></td>
+              <td style="background:#4DDDBC; width:10px;"></td>
+              <td style="background:#00a65a; width:10px;"></td>
+            </tr>
+            
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="row">
         
         <!-- /.col -->
         <div class="col-md-12">
@@ -85,10 +111,13 @@
         y    = date.getFullYear()
 
     var info = {};
-    info["idparticipante"] = '26';
+    info["idparticipante"] = $("#txt_idparticipante").val();
     var datos = JSON.stringify(info);
     var eventos = [];
 
+    <?PHP
+      if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'ALU'){
+    ?>
     $.ajax({
       type:"POST",
       url: "<?PHP echo constant('URL'); ?>horario/GetHorarioParticipante", 
@@ -103,6 +132,7 @@
           info["title"] = datos.data[x].descripcion;
           info["start"] = datos.data[x].dia_panel + ' ' + datos.data[x].hora_inicio;
           info["end"] = datos.data[x].dia_panel + ' ' + datos.data[x].hora_fin;
+          info["backgroundColor"] = datos.data[x].color;
           eventos.push(info);
         }
         console.log(eventos);
@@ -112,24 +142,64 @@
       }
     });
 
-    var events = [
-        {
-            title:"Clase 1",
-            start: '201916:00', // a start time (10am in this example)
-            end: '17:30', // an end time (2pm in this example)
-            dow: [ 1, 4 ], // Repeat monday and thursday
-            backgroundColor: '#00c0ef', //Info (aqua)
-            borderColor    : '#00c0ef' //Info (aqua)
+    <?PHP } ?>
+
+    <?PHP
+      if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){
+    ?>
+    
+      $.ajax({
+        type:"POST",
+        url: "<?PHP echo constant('URL'); ?>horario/GetHorariobyApoderado", 
+        data:{
+          datos: datos
         },
-        {
-            title:"Clase 2",
-            start: '18:00', // a start time (10am in this example)
-            end: '19:30', // an end time (2pm in this example)
-            dow: [ 2, 5 ], // Repeat monday and thursday
-            backgroundColor: '#00a65a', //Success (green)
-            borderColor    : '#00a65a' //Success (green)
+        async:false,
+        success: function(result){
+          var datos = JSON.parse(result);
+          for(var x=0;x<datos.data.length;x++){
+            var info = {};
+            info["title"] = datos.data[x].descripcion;
+            info["start"] = datos.data[x].dia_panel + ' ' + datos.data[x].hora_inicio;
+            info["end"] = datos.data[x].dia_panel + ' ' + datos.data[x].hora_fin;
+            info["backgroundColor"] = datos.data[x].color;
+            eventos.push(info);
+          }
+          console.log(eventos);
+        },
+        error: function(result){
+          console.log(result);
         }
-      ];
+      });
+
+    <?PHP } ?>
+
+    var info = {};
+    info["idalumno"] = $("#txt_idparticipante").val();
+    var datos = JSON.stringify(info);
+    
+    $.ajax({
+      type:"POST",
+      url: "<?PHP echo constant('URL'); ?>evento/GetEventoByParticipantePanel", 
+      data:{
+        datos: datos
+      },
+      async:false,
+      success: function(result){
+        var datos = JSON.parse(result);
+        for(var x=0;x<datos.data.length;x++){
+          var info = {};
+          info["title"] = datos.data[x].descripcion;
+          info["start"] = datos.data[x].fecha_panel + ' ' + datos.data[x].hora;
+          info["backgroundColor"] = "#00a65a";
+          eventos.push(info);
+        }
+        console.log(eventos);
+      },
+      error: function(result){
+        console.log(result);
+      }
+    });
 
     $('#calendar').fullCalendar({
       header    : {
@@ -139,41 +209,19 @@
       },
       displayEventEnd:true,
       buttonText: {
-        today: 'today',
-        month: 'month',
-        week : 'week',
-        day  : 'day'
+        today: 'Hoy',
+        month: 'Mes',
+        week : 'Semana',
+        day  : 'Día'
       },
       //Random default events
       events    : eventos,
-      editable  : true,
-      droppable : true, // this allows things to be dropped onto the calendar !!!
-      drop      : function (date, allDay) { // this function is called when something is dropped
-
-        // retrieve the dropped element's stored Event Object
-        var originalEventObject = $(this).data('eventObject')
-
-        // we need to copy it, so that multiple events don't have a reference to the same object
-        var copiedEventObject = $.extend({}, originalEventObject)
-
-        // assign it the date that was reported
-        copiedEventObject.start           = date
-        copiedEventObject.allDay          = allDay
-        copiedEventObject.backgroundColor = $(this).css('background-color')
-        copiedEventObject.borderColor     = $(this).css('border-color')
-
-        // render the event on the calendar
-        // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-        $('#calendar').fullCalendar('renderEvent', copiedEventObject, true)
-
-        // is the "remove after drop" checkbox checked?
-        if ($('#drop-remove').is(':checked')) {
-          // if so, remove the element from the "Draggable Events" list
-          $(this).remove()
-        }
-
+      editable  : false,
+      droppable : false, // this allows things to be dropped onto the calendar !!!
+      eventClick: function(data, event, view) {
+        
       }
-    })
+    });
 
     /* ADDING EVENTS */
     var currColor = '#3c8dbc' //Red by default

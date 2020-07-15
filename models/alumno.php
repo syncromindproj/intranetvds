@@ -10,6 +10,7 @@ class Alumno
     public $fecha_nacimiento;
     public $edad;
     public $distrito;
+    public $nacionalidad;
     public $centro_estudios;
     public $anio_estudios;
     public $nombre_apoderado;
@@ -23,6 +24,7 @@ class Alumno
     public $direccion;
     public $estudia_canto;
     public $donde_estudia;
+    public $instrumento;
     public $seguro_salud;
     public $seguro_caducidad;
     public $enfermedades;
@@ -32,6 +34,7 @@ class Alumno
     public $dolor_estomago;
     public $toma_medicamento_diario;
     public $medicamento_diario;
+    public $imagen;
 }
 
 ?>

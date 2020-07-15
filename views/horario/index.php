@@ -41,6 +41,7 @@
                                     <tr>
                                         <th>Grupo</th>
                                         <th>Horario</th>
+                                        <th>Tipo</th>
                                         <th>Opciones</th>
                                     </tr>
                                 </thead>
@@ -71,6 +72,18 @@
                                 <div class="col-4">
                                     <label for="txt_descripcion">Descripción</label>
                                     <input required type="text" class="form-control" id="txt_descripcion" name="txt_descripcion" placeholder="Descripción">
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-top:20px;">
+                                <div class="col-4">
+                                    <label for="sl_tipo">Tipo</label>
+                                    <select id="sl_tipo" class="form-control" required>
+                                        <option value="">SELECCIONE UN TIPO</option>
+                                        <option value="clase_regular">CLASE REGULAR</option>
+                                        <option value="ensayo">ENSAYOS</option>
+                                        <option value="ensayo_general">ENSAYOS GENERALES</option>
+                                        <option value="otros">OTROS</option>
+                                    </select>
                                 </div>
                             </div>
                     </div>
@@ -117,12 +130,31 @@
                         <form id="frm_asignar" method="POST">
                             <div class="form-row">
                                 <div class="col-4">
-                                    <label for="txt_fecha">Fecha</label>
-                                    <input required type="text" class="form-control" id="txt_fecha" name="txt_fecha" placeholder="Fecha">
+                                    <label>Rango de Fechas</label>
+                                    <div class="input-daterange input-group" id="datepicker">
+                                        <input type="text" class="input-sm form-control" name="start" id="start" />
+                                        <span class="input-group-addon">hasta</span>
+                                        <input type="text" class="input-sm form-control" name="end" id="end" />
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-row" style="margin-top:20px;">
                                 <div class="col-4">
+                                    <label>Días</label>
+                                    <div id="dias_checks">
+                                        <label><input type="checkbox" name="" id="" value="1" class="grupo_dia" /> Lunes</label>
+                                        <label class="left_space" ><input type="checkbox" value="2" name="" id="" class="grupo_dia" /> Martes</label>
+                                        <label class="left_space" ><input type="checkbox" value="3" name="" id="" class="grupo_dia" /> Miércoles</label>
+                                        <label class="left_space" ><input type="checkbox" value="4" name="" id="" class="grupo_dia" /> Jueves</label>
+                                        <label class="left_space" ><input type="checkbox" value="5" name="" id="" class="grupo_dia" /> Viernes</label>
+                                        <label class="left_space" ><input type="checkbox" value="6" name="" id="" class="grupo_dia" /> Sábado</label>
+                                        <label class="left_space" ><input type="checkbox" value="0" name="" id="" class="grupo_dia" /> Domingo</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-top:20px;">
+                                <div class="col-4">
+                                    <label>Hora Inicio</label>
                                     <div class='input-group date' id='controlhora1'>
                                         <input type='text' class="form-control" id="txt_hora_inicio" />
                                         <span class="input-group-addon">
@@ -133,6 +165,7 @@
                             </div>
                             <div class="form-row" style="margin-top:20px;">
                                 <div class="col-4">
+                                    <label>Hora Fin</label>
                                     <div class='input-group date' id='controlhora2'>
                                         <input type='text' class="form-control" id="txt_hora_final" />
                                         <span class="input-group-addon">
@@ -183,11 +216,36 @@
 <script>
     var horarios        = "";
     var horario_detalle = "";
+
+    function getDates(startDate, stopDate) {
+        var dateArray = [];
+        var currentDate = moment(startDate, 'DD-MM-YYYY')
+        var stopDate = moment(stopDate, 'DD-MM-YYYY')
+        
+        while (currentDate <= stopDate) {
+            //dateArray.push( moment(currentDate).format('YYYY-MM-DD') )
+            var date_info = {
+                "nombre_dia": moment(currentDate).day(),
+                "fecha": moment(currentDate).format('YYYY-MM-DD')
+            }
+            dateArray.push(date_info);
+            currentDate = moment(currentDate).add(1, 'days');
+        }
+        return dateArray;
+    }
     
     $(document).ready(function() {
         var idgrupo = "";
         var opcion = "";
         cargaGrupos();
+
+        $('.input-daterange').datepicker({
+            language: "es",
+            keyboardNavigation: false,
+            forceParse: false,
+            autoclose: true,
+            todayHighlight: true
+        });
 
         $('#controlhora1').datetimepicker({
             format: 'LT',
@@ -199,15 +257,12 @@
             locale: 'es'
         });
 
-        $('#txt_fecha').datepicker({
+        $('#fecha_inicial').datepicker({
             maxViewMode: 2,
             language: "es"
         });
 
-        $('#txt_fecha').on('changeDate', function(ev){
-            $(this).datepicker('hide');
-        });
-
+        
         horarios = $('#horario_tabla').DataTable( {
 		    "ajax": "<?PHP echo constant('URL'); ?>horario/GetHorarios",
 			"responsive":true,
@@ -227,9 +282,13 @@
                 {
 			        "targets": [1],
                     "data":"descripcion"
+                },
+                {
+			        "targets": [2],
+                    "data":"tipo"
 			    },
                 {
-                    "targets": [2],
+                    "targets": [3],
                     "data":"idhorario",
                     "render": function(url, type, full){
                         var idhorario = full[0];
@@ -261,9 +320,11 @@
             event.preventDefault();
             var idgrupo     = $("#sl_grupo").val();
             var descripcion = $("#txt_descripcion").val();
+            var tipo        = $("#sl_tipo").val();
             var info = {};
             info["idgrupo"]     = idgrupo;
             info["descripcion"] = descripcion;
+            info["tipo"]        = tipo;
             var myJsonString = JSON.stringify(info);
 
             $.ajax({
@@ -287,37 +348,64 @@
 
         $("#frm_asignar").submit(function(event){
             event.preventDefault();
+            var start = $("#start").val();
+            var end = $("#end").val()
+            var dates = [];
+            var fechas_finales = [];
+            dates = getDates(start, end);
+            
+            var arr_dias_seleccionados = [];
+            var i = 0;
+            $('.grupo_dia:checked').each(function () {
+                arr_dias_seleccionados[i++] = $(this).val();
+            });    
+            
+            for(var x=0;x<dates.length;x++){
+                for(var y=0;y<arr_dias_seleccionados.length;y++){
+                    if(dates[x].nombre_dia == arr_dias_seleccionados[y]){
+                        fechas_finales.push(dates[x].fecha);
+                    }
+                }
+            }
+
+            console.log(fechas_finales);
+
             var idhorario       = $("#btn_registrar").attr("data-value");
-            var dia             = $("#txt_fecha").val();
-            var date            = moment(dia, 'DD-MM-YYYY')
-            var fecha           = date.format('YYYY-MM-DD');
+            //var dia             = $("#txt_fecha").val();
+            //var date            = moment(dia, 'DD-MM-YYYY')
+            //var fecha           = date.format('YYYY-MM-DD');
 
             var hora_inicio     = $("#txt_hora_inicio").val();
             var hora_final      = $("#txt_hora_final").val();
-            var info            = {};
-            info["idhorario"]   = idhorario;
-            info["dia"]         = fecha;
-            info["hora_inicio"] = moment(hora_inicio, 'hh:mm A').format('HH:mm');
-            info["hora_final"]  = moment(hora_final, 'hh:mm A').format('HH:mm');
-            var myJsonString    = JSON.stringify(info);
-            $.ajax({
-                type: "POST",
-                url: "<?PHP echo constant('URL'); ?>horario/AsignarHorario", 
-                data:{
-                    datos: myJsonString
-                },
-                success: function(result){
-                    console.log(result);
-                    //$('#md_asignar').modal('hide');
-                    $('#sl_dia').val('');
-                    $('#sl_horainicio').val('');
-                    $('#sl_horafinal').val('');
-                    horario_detalle.ajax.reload();
-                },
-                error:function(result){
-                    console.log(result);
-                }
-            });
+
+            for(var x=0;x<fechas_finales.length;x++){
+                var date            = moment(fechas_finales[x])
+                var fecha           = date.format('YYYY-MM-DD');
+                var info            = {};
+                info["idhorario"]   = idhorario;
+                info["dia"]         = fecha;
+                info["hora_inicio"] = moment(hora_inicio, 'hh:mm A').format('HH:mm');
+                info["hora_final"]  = moment(hora_final, 'hh:mm A').format('HH:mm');
+                var myJsonString    = JSON.stringify(info);
+                $.ajax({
+                    type: "POST",
+                    url: "<?PHP echo constant('URL'); ?>horario/AsignarHorario", 
+                    data:{
+                        datos: myJsonString
+                    },
+                    success: function(result){
+                        console.log(result);
+                        $('#sl_dia').val('');
+                        $('#sl_horainicio').val('');
+                        $('#sl_horafinal').val('');
+                        horario_detalle.ajax.reload();
+                    },
+                    error:function(result){
+                        console.log(result);
+                    }
+                });
+            }
+            
         
         });
 

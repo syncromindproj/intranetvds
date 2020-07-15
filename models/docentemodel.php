@@ -86,8 +86,8 @@ class DocenteModel extends Model
         
             $query = $this->db->connect()->prepare('call inserta_docente (:nombres, :apellidos, :correo, :celular, :dni)');
             $query->execute([
-                'nombres'           => strtoupper($nombres),
-                'apellidos'         => strtoupper($apellidos),
+                'nombres'           => $nombres,
+                'apellidos'         => $apellidos,
                 'correo'            => $correo,
                 'celular'           => $celular,
                 'dni'               => $dni
@@ -111,8 +111,8 @@ class DocenteModel extends Model
             
             $query = $this->db->connect()->prepare('update docente set nombres = :nombres, apellidos = :apellidos, correo = :correo, celular = :celular, dni = :dni where iddocente = :id');
             $query->execute([
-                'nombres'           => strtoupper($nombres),
-                'apellidos'         => strtoupper($apellidos),
+                'nombres'           => $nombres,
+                'apellidos'         => $apellidos,
                 'correo'            => $correo,
                 'celular'           => $celular,
                 'dni'               => $dni,

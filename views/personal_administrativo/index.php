@@ -41,7 +41,6 @@
                                         <th>Nombres</th>
                                         <th>Apellidos</th>
                                         <th>Correo</th>
-                                        <th>Celular</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -102,10 +101,6 @@
                 {
 			        "targets": 3,
                     "data":"correo"
-			    },
-                {
-			        "targets": 4,
-                    "data":"celular"
 			    }        
 			],
 			"dom": 'Bfrtip',

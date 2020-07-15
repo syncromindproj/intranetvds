@@ -1,5 +1,7 @@
 <?PHP require 'views/header.php'; ?>
-
+<!-- Bootstrap Color Picker -->
+<link rel="stylesheet" href="<?PHP echo constant('URL'); ?>views/bower_components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+  
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -10,8 +12,8 @@
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">Reportes</a></li>
-        <li class="active">Reporte de Audiciones 2019</li>
+        <li><a href="#">Intranet</a></li>
+        <li class="active">Gestión de Grupos</li>
       </ol>
     </section>
 
@@ -31,7 +33,7 @@
             <div class="col-xs-12">
             <div class="box">
                 <div class="box-header">
-                <h3 class="box-title">Audiciones 2019</h3>
+                <h3 class="box-title"><?PHP echo $this->subtitle ; ?></h3>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
@@ -41,6 +43,7 @@
                                 <th>Descripcion</th>
                                 <th>Profesor Asignado</th>
                                 <th>Cantidad Alumnos</th>
+                                <th>Color</th>
                                 <th>Opciones</th>
                             </tr>
                         </thead>
@@ -72,6 +75,17 @@
                             <div class="col-4">
                                 <label for="txt_descripcion">Descripción</label>
                                 <input required type="text" class="form-control" id="txt_descripcion" name="txt_descripcion" placeholder="Descripción">
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-top:10px;">
+                            <div class="col-4">
+                                <label for="txt_color">Color</label>
+                                <div class="input-group div_color">
+                                    <input type="text" id="txt_color" name="txt_color" class="form-control">
+                                    <div class="input-group-addon">
+                                        <i></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                 </div>
@@ -183,6 +197,8 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/b-1.5.4/b-html5-1.5.4/r-2.2.2/datatables.min.js"></script>
+<!-- bootstrap color picker -->
+<script src="<?PHP echo constant('URL'); ?>views/bower_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
 
 <script>
     var grupos = "";
@@ -191,6 +207,7 @@
     $(document).ready(function() {
         var idgrupo = "";
         var opcion = "";
+        $('.div_color').colorpicker();
 
 		grupos = $('#grupos').DataTable( {
 		    "ajax": "<?PHP echo constant('URL'); ?>grupo/GetGruposAsignados",
@@ -218,6 +235,14 @@
                 },
                 {
                     "targets": [3],
+                    "data":"color",
+                    "render": function(url, type, full){
+                        var color = full['color'];
+                        return '<div style="background-color:'+ color +'; width:100%; height:20px;"></div>';
+                    }
+                },
+                {
+                    "targets": [4],
                     "data":"idgrupo",
                     "render": function(url, type, full){
                         var idgrupo = full[0];
@@ -247,13 +272,19 @@
 		
 		$("#frm_grupo").submit(function(event){
             event.preventDefault();
-            var descripcion = $("#txt_descripcion").val();
+            var descripcion     = $("#txt_descripcion").val();
+            var color           = $("#txt_color").val();
+            var info            = {};
+            info['descripcion'] = descripcion;
+            info['color']       = color;
+            var datos           = JSON.stringify(info);
+
             if(opcion == "nuevo"){
                 $.ajax({
                     type: "POST",
                     url: "<?PHP echo constant('URL'); ?>grupo/GuardarGrupo", 
                     data:{
-                        datos: '{"descripcion": "' + descripcion + '"}'
+                        datos: datos
                     },
                     success: function(result){
                         console.log(result);
@@ -269,13 +300,19 @@
             }
 
             if(opcion == "editar"){
-                var descripcion = $("#txt_descripcion").val();
+                var descripcion     = $("#txt_descripcion").val();
+                var color           = $("#txt_color").val();
+                var info            = {};
+                info['descripcion'] = descripcion;
+                info['color']       = color;
+                info['idgrupo']     = idgrupo;
+                var datos           = JSON.stringify(info);
 
                 $.ajax({
                     type: "POST",
                     url: "<?PHP echo constant('URL'); ?>grupo/ActualizaGrupo", 
                     data:{
-                        datos: '{"descripcion": "' + descripcion + '", "idgrupo": "' + idgrupo + '"}'
+                        datos: datos
                     },
                     success: function(result){
                         console.log(result);
@@ -312,6 +349,7 @@
                     success: function(result){
                         var datos = jQuery.parseJSON(result);
                         $("#txt_descripcion").val(datos.descripcion);
+                        $("#txt_color").val(datos.color);
                         console.log(idgrupo);
                     },
                     error:function(result){

@@ -25,3 +25,7 @@
   vertical-align: middle;
   margin-bottom: 0.75em;
 }
+
+.left_space{
+    padding-left: 12px !important;
+}

@@ -61,6 +61,15 @@ class AlumnoController extends Controller{
         echo "Grupo Eliminado";
     }
 
+    public function EliminaAlumno()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $idalumno = $datos['idalumno'];
+        $grupos = $this->model->EliminaAlumno($idalumno);
+        echo "Alumno Eliminado";
+    }
+
     public function VerAlumno()
     {
         $datos      = $_REQUEST['datos'];
@@ -112,6 +121,14 @@ class AlumnoController extends Controller{
         echo(json_encode($alumnos));
     }
 
+    public function getAlumnosNOAutorizados()
+    {
+        $datos      = $_REQUEST['datos'];
+        $datos      = json_decode($datos, true);
+        $alumnos = $this->model->getAlumnosNOAutorizados($datos);
+        echo(json_encode($alumnos));
+    }
+
     public function getAlumnosComunicado()
     {
         $datos      = $_REQUEST['datos'];
@@ -126,6 +143,34 @@ class AlumnoController extends Controller{
         $datos = json_decode($datos, true);
         $info = $this->model->VerificaDNIAlumno($datos);
         echo json_encode($info);
+    }
+
+    public function Exportar()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $info = $this->model->Exportar($datos);
+        echo json_encode($info);
+    }
+
+    public function CambiaImagen()
+    {
+        $img = $_FILES["fl_image"]["name"];
+        $tmp = $_FILES["fl_image"]["tmp_name"];
+        $id  = $_REQUEST["txt_id"];
+        $mensaje = "";
+        
+        $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+        
+        $path   = 'views/dist/img';
+        $rand = rand(10000, 99999);
+        $path .= "/" . $rand . "_file.".$ext;
+        if(move_uploaded_file($tmp,$path)) 
+        {
+            $mensaje = $this->model->ActualizaImageAlumno($id, $path);
+        }
+        
+        echo $mensaje;
     }
 }
 

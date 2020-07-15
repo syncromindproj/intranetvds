@@ -10,7 +10,7 @@ class GrupoModel extends Model{
         $items = [];
 
         try{
-            $query = $this->db->connect()->query("select * from grupo order by descripcion asc");
+            $query = $this->db->connect()->query("select * from grupo where estado=1 order by descripcion asc");
 
             while($row =  $query->fetch()){
                 $items['data'][] = $row;
@@ -35,7 +35,8 @@ class GrupoModel extends Model{
             g.descripcion,
             COALESCE(concat(d.apellidos, ', ', d.nombres),'NO ASIGNADO', concat(d.apellidos, ', ', d.nombres)) as nombres,
             count(gp.idgrupo) as cantidad,
-            g.estado
+            g.estado,
+            g.color
             from grupo g
             left join grupo_docente gd
             on gd.idgrupo = g.idgrupo
@@ -43,7 +44,8 @@ class GrupoModel extends Model{
             on d.iddocente = gd.iddocente
             left join grupo_participante gp
             on gp.idgrupo = g.idgrupo
-            group by g.idgrupo
+            where g.estado = 1
+            group by g.idgrupo, d.iddocente
             order by g.descripcion asc");
 
             while($row =  $query->fetch()){
@@ -61,8 +63,13 @@ class GrupoModel extends Model{
     }
 
     public function InsertaGrupo($datos){
-        $query = $this->db->connect()->prepare('insert into grupo (descripcion) values (:descripcion)');
-        $query->execute(['descripcion' => strtoupper($datos['descripcion'])]);
+        $query = $this->db->connect()->prepare('insert into grupo (descripcion, color) values (:descripcion, :color)');
+        $query->execute(
+            [
+                'descripcion'   => $datos['descripcion'],
+                'color'         => $datos['color']
+            ]
+        );
     }
 
     public function EliminaGrupo($id){
@@ -82,8 +89,10 @@ class GrupoModel extends Model{
     }
 
     public function ActualizaGrupo($datos){
-        $query = $this->db->connect()->prepare('update grupo set descripcion = :descripcion where idgrupo=:idgrupo');
+        $query = $this->db->connect()->prepare('update grupo set descripcion = :descripcion,
+        color = :color where idgrupo=:idgrupo');
         $query->execute([
+            'color'         => $datos['color'],
             'descripcion'   => $datos['descripcion'],
             'idgrupo'       => $datos['idgrupo']
         ]);
@@ -98,9 +107,10 @@ class GrupoModel extends Model{
                 'idgrupo' => $id
             ]);
             while($row =  $query->fetch()){
-                $item->idgrupo = $row['idgrupo'];
-                $item->descripcion = $row['descripcion'];
-                $item->estado = $row['estado'];
+                $item->idgrupo      = $row['idgrupo'];
+                $item->descripcion  = $row['descripcion'];
+                $item->color  = $row['color'];
+                $item->estado       = $row['estado'];
             }
             
             return $item;
@@ -166,6 +176,7 @@ class GrupoModel extends Model{
         try{
             $query = $this->db->connect()->query("SELECT 
             g.descripcion as grupo,
+            g.color,
             count(gp.idgrupo) as cantidad,
             round(((count(gp.idgrupo)*100)/(select count(*) from participantes where aprobado=1)),2) as porcentaje
             from grupo g
@@ -178,7 +189,7 @@ class GrupoModel extends Model{
                 $r['label'] = $row['grupo'];
                 $r['value'] = $row['cantidad'];
                 $r['porce'] = $row['porcentaje'];
-                $r['color'] = '';
+                $r['color'] = $row['color'];
                 $items[] = $r;
             }
 

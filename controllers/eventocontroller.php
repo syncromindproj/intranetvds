@@ -36,6 +36,22 @@ class EventoController extends Controller
         echo $eventos;
     }
 
+    public function Autorizar()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $eventos = $this->model->Autorizar($datos);
+        echo $eventos;
+    }
+
+    public function NoAutorizar()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $eventos = $this->model->NoAutorizar($datos);
+        echo $eventos;
+    }
+
     public function EliminaEvento()
     {
         $datos = $_REQUEST['datos'];
@@ -65,6 +81,22 @@ class EventoController extends Controller
         $datos = json_decode($datos, true);
         $eventos = $this->model->GetEventoByParticipante($datos);
         echo json_encode($eventos);
+    }
+
+    public function GetEventoByParticipantePanel()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $eventos = $this->model->GetEventoByParticipantePanel($datos);
+        echo json_encode($eventos);
+    }
+  
+    public function GetEventosCalendario()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $horarios = $this->model->GetEventosCalendario($datos);
+        echo(json_encode($horarios));
     }
 }
 ?>

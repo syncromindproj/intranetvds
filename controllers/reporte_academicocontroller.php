@@ -43,5 +43,13 @@ class Reporte_AcademicoController extends Controller
         echo json_encode($material);
         
     }
+
+    public function GetReporteByParticipante()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $reportes = $this->model->GetReporteByParticipante($datos);
+        echo json_encode($reportes);
+    }
 }
 ?>

@@ -17,74 +17,118 @@
 <?PHP
     if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){
 ?>
+    <!-- Enviar Modal -->
+    <div class="modal modal-primary fade" id="modal_autorizar">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">¿Desea autorizar el evento?</h4>
+            </div>
+            <div class="modal-body">
+            <p><span id="sp_mensaje_autorizar"></span></p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+            <button type="button" id="btn_autorizar" data-value="" class="btn btn-outline">Autorizar</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <!-- End Enviar Modal -->
+
+    <!-- No Autorizar Modal -->
+    <div class="modal modal-primary fade" id="modal_noautorizar">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Por favor ingrese el motivo</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <textarea class="form-control" id="txt_noautoriza" rows="8"></textarea>
+                </p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+            <button type="button" id="btn_noautorizar" data-value="" class="btn btn-outline">Enviar</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <!-- End Modal No Autorizar -->
+    
     <!-- Main content -->
     <section class="content">
         <div class="row">
-            <section class="col-lg-6 connectedSortable">
-                <div class="nav-tabs-custom">
-                <!-- Tabs within a box -->
-                <ul class="nav nav-tabs pull-right">
-                <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
-                <li class="pull-left header"><i class="fa fa-inbox"></i> Asistencia</li>
-                </ul>
-                <div class="tab-content no-padding">
-                <!-- Morris chart - Sales -->
-                <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;"></div>
-                <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>
+            <section class="col-lg-4 connectedSortable">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <i class="ion ion-clipboard"></i>
+                        <h3 class="box-title">Eventos Programados</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body" id="body_eventos">
+                        
+                        
+                    </div>
+                </div>
+            
+            </section>
+            <section class="col-lg-4 connectedSortable">
+            <!-- TO DO List -->
+            <div class="box box-primary">
+                <div class="box-header">
+                    <i class="ion ion-clipboard"></i>
+                    <h3 class="box-title">Comunicados</h3>
+                </div>
+                <div class="box-body" id="body_comunicados">
+                    
+                </div>
+                <div class="box-footer clearfix no-border">
+                
                 </div>
             </div>
+            <!-- /.box -->
             </section>
-            <section class="col-lg-6 connectedSortable">
+            <section class="col-lg-4 connectedSortable">
             <!-- TO DO List -->
             <div class="box box-primary">
                 <div class="box-header">
                 <i class="ion ion-clipboard"></i>
 
-                <h3 class="box-title">Documentos Recibidos</h3>
+                <h3 class="box-title">Materiales Disponibles</h3>
 
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body">
+                <div class="box-body" id="body_materiales">
                 <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
-                <ul class="todo-list">
-                    <li>
-                        <!-- drag handle -->
-                        <!--span class="handle">
-                                <i class="fa fa-ellipsis-v"></i>
-                                <i class="fa fa-ellipsis-v"></i>
-                            </span-->
-                        <!-- checkbox -->
-                        <!--input type="checkbox" value=""-->
-                        <!-- todo text -->
-                        <span class="text">Material 1</span>
-                        <!-- Emphasis label -->
-                        <!--small class="label label-danger"><i class="fa fa-clock-o"></i> 2 mins</small-->
-                        <!-- General tools such as edit or delete-->
-                        <div class="tools">
-                            <i class="fa fa-edit"></i>
-                            <i class="fa fa-trash-o"></i>
-                        </div>
-                    </li>
-                    <li>
-                        <!-- drag handle -->
-                        <!--span class="handle">
-                                <i class="fa fa-ellipsis-v"></i>
-                                <i class="fa fa-ellipsis-v"></i>
-                            </span-->
-                        <!-- checkbox -->
-                        <!--input type="checkbox" value=""-->
-                        <!-- todo text -->
-                        <span class="text">Material 2</span>
-                        <!-- Emphasis label -->
-                        <!--small class="label label-danger"><i class="fa fa-clock-o"></i> 2 mins</small-->
-                        <!-- General tools such as edit or delete-->
-                        <div class="tools">
-                            <i class="fa fa-edit"></i>
-                            <i class="fa fa-trash-o"></i>
-                        </div>
-                    </li>
-                    
-                </ul>
+                
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer clearfix no-border">
+                
+                </div>
+            </div>
+            <!-- /.box -->
+            </section>
+
+            <section class="col-lg-12 connectedSortable">
+            <!-- TO DO List -->
+            <div class="box box-primary">
+                <div class="box-header">
+                <i class="ion ion-clipboard"></i>
+
+                <h3 class="box-title">Reportes Académicos</h3>
+
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body" id="body_reportes">
+                <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
+                
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer clearfix no-border">
@@ -94,6 +138,8 @@
             <!-- /.box -->
             </section>
         </div>
+
+        
         
     </section>
 <?PHP } ?>
@@ -105,7 +151,7 @@
     <section class="content">
         <div class="row">
             <section class="col-lg-4 connectedSortable">
-                <div class="box box-primary">
+                <div class="box box-primary" id="box_eventos">
                     <div class="box-header">
                         <i class="ion ion-clipboard"></i>
                         <h3 class="box-title">Eventos Programados</h3>
@@ -270,6 +316,12 @@
 <script>
     var grupos = "";
     var alumnos = "";
+    var datos_comunicado = "";
+    var datos_evento = "";
+    var datos_materiales = "";
+    var datos_reportes = "";
+    var datos_apoderado = "";
+
     $(document).ready(function() {
         <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'ADM'){ ?>
             $.ajax({
@@ -347,11 +399,15 @@
                         html += "<p>Aún no hay eventos asignados</p>";
                     }else{
                         for(var x=0;x<datos.data.length;x++){
-                            html += '<div class="box box-default collapsed-box">';
+                            if(datos.data[x].autorizacion == "1"){
+                                html += '<div class="box box-success">';
+                            }else{
+                                html += '<div class="box box-danger">';
+                            }
                             html += '<div class="box-header with-border">';
                             html += '<h3 class="box-title">'+ datos.data[x].titulo +'</h3>';
                             html += '<div class="box-tools pull-right">';
-                            html += '<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>';
+                            html += '<button type="button" class="btn btn-box-tool">';
                             html += '</button>';
                             html += '</div>';
                             html += '</div>';
@@ -361,6 +417,7 @@
                             html += '<p><b>Hora: </b>' + datos.data[x].hora + '</p>';
                             html += '</div>';
                             html += '</div>';
+                            
                         }
                     }
                     div_eventos.html(html);
@@ -461,7 +518,293 @@
 
             
         <?PHP } ?>
+
+        <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){ ?>
+            //get_grupo();
+            var idapoderado = $("#txt_idparticipante").val();
+            var idgrupo = "";
+            var info            = {};
+            info["usuario"]     = '<?PHP echo($_SESSION['usuario']); ?>';
+            var myJsonString    = JSON.stringify(info);
+            
+            var infoapoderado = {};
+            infoapoderado['idapoderado'] = idapoderado;
+            datos_apoderado = JSON.stringify(infoapoderado);
+            
+            GetHijos(datos_apoderado);
+            
+            /* 
+
+            
+            
+             */
+            $("#btn_autorizar").click(function(){
+                var idevento = $("#btn_autorizar").attr("data-value");
+                var info = {};
+                info['idevento'] = idevento;
+                var datos = JSON.stringify(info);
+                $.ajax({
+                    type: "POST",
+                    url: "<?PHP echo constant('URL'); ?>evento/Autorizar", 
+                    data:{
+                        datos: datos
+                    },
+                    async:false,
+                    success: function(result){
+                        $("#modal_autorizar").modal('hide');
+                        //GetHijos(datos_apoderado);
+                        window.location = "panel";
+                    },
+                    error: function(result){
+
+                    }
+                });
+            });
+
+            $("#btn_noautorizar").click(function(){
+                var idevento = $("#btn_noautorizar").attr("data-value");
+                var motivo = $("#txt_noautoriza").val();
+                var info = {};
+                info['idevento'] = idevento;
+                info['motivo'] = motivo;
+                var datos = JSON.stringify(info);
+                $.ajax({
+                    type: "POST",
+                    url: "<?PHP echo constant('URL'); ?>evento/NoAutorizar", 
+                    data:{
+                        datos: datos
+                    },
+                    async:false,
+                    success: function(result){
+                        $("#modal_noautorizar").modal('hide');
+                        window.location = "panel";
+                    },
+                    error: function(result){
+
+                    }
+                });
+            });
+
+            
+            
+        <?PHP } ?>
     });
+
+    function GetHijos(datos_apoderado){
+        datos_comunicado = "";
+        datos_evento = "";
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>apoderado/GetHijos", 
+            data:{
+                datos: datos_apoderado
+            },
+            async:false,
+            success: function(result){
+                var datos = JSON.parse(result);
+                console.log("hijos");
+                console.log(datos);
+                for(var x=0; x<datos.data.length;x++){
+                    var idparticipante = datos.data[x].idparticipante;
+                    datos_comunicado += MuestraComunicados(datos.data[x]);
+                    datos_comunicado += '<ul class="todo-list" id="lista_comunicados">';
+                    var infoparticipante = {};
+                    infoparticipante['idalumno'] = idparticipante;
+                    var datos_participante = JSON.stringify(infoparticipante);
+                    console.log("datos_part");
+                    console.log(datos_participante);
+                    GetComunicadoByParticipante(datos_participante);
+                    datos_comunicado += "</ul>";
+
+                    //body_comunicados
+                    datos_evento += MuestraComunicados(datos.data[x]);
+                    GetEventoByParticipante(datos_participante);
+
+                    //body_materiales
+                    datos_materiales += MuestraComunicados(datos.data[x]);
+                    datos_materiales += '<ul class="todo-list" id="lista_materiales">';
+                    var infoparticipante = {};
+                    infoparticipante['idalumno'] = idparticipante;
+                    var datos_participante = JSON.stringify(infoparticipante);
+                    GetMaterialByParticipante(datos_participante);
+                    datos_materiales += "</ul>";
+
+                    //body_reportes
+                    datos_reportes += MuestraComunicados(datos.data[x]);
+                    datos_reportes += '<ul class="todo-list" id="lista_materiales">';
+                    var infoparticipante = {};
+                    infoparticipante['idalumno'] = idparticipante;
+                    var datos_participante = JSON.stringify(infoparticipante);
+                    GetReporteByParticipante(datos_participante);
+                    datos_reportes += "</ul>";
+                }
+                
+            },
+            error: function(result){
+
+            }
+        });
+        var div_comunicados = $("#body_comunicados");
+        div_comunicados.html(datos_comunicado);
+        
+        var div_eventos = $("#body_eventos");
+        div_eventos.html(datos_evento);
+
+        var div_materiales = $("#body_materiales");
+        div_materiales.html(datos_materiales);
+
+        var div_reportes = $("#body_reportes");
+        div_reportes.html(datos_reportes);
+    }
+
+    function autorizar(id){
+        $("#modal_autorizar").modal();
+        $("#sp_mensaje_autorizar").html("¿Desea autorizar la asistencia de su hijo al evento?");
+        $("#btn_autorizar").attr("data-value", id);
+    }
+
+    function no_autorizar(id){
+        $("#modal_noautorizar").modal();
+        $("#btn_noautorizar").attr("data-value", id);
+    }
+
+    function GetReporteByParticipante(datos_participante){
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>reporte_academico/GetReporteByParticipante", 
+            async:false,
+            data:{
+                datos: datos_participante
+            },
+            success: function(result){
+                var datos = JSON.parse(result);
+                if(datos.data.length == 0){
+                    datos_reportes += "<p>Aún no hay reportes asignados</p>";
+                }else{
+                    for(var x=0;x<datos.data.length;x++){
+                        datos_reportes += '<li>';
+                        datos_reportes += '<span class="text"><a title="'+ datos.data[x].descripcion +'" target="_blank" href="'+datos.data[x].url+'">'+ datos.data[x].titulo +'</a></span>';
+                        datos_reportes += '<div class="tools">';
+                        datos_reportes += '</div>';
+                        datos_reportes += '</li>';
+                    }
+                    
+                }
+            },
+            error: function(result){
+
+            }
+        });
+    }
+    function GetMaterialByParticipante(datos_participante){
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>material/GetMaterialByParticipante", 
+            async:false,
+            data:{
+                datos: datos_participante
+            },
+            success: function(result){
+                var datos = JSON.parse(result);
+                if(datos.data.length == 0){
+                    datos_materiales += "<p>Aún no hay materiales asignados</p>";
+                }else{
+                    for(var x=0;x<datos.data.length;x++){
+                        datos_materiales += '<li>';
+                        datos_materiales += '<span class="text"><a title="'+ datos.data[x].descripcion +'" target="_blank" href="'+datos.data[x].url+'">'+ datos.data[x].titulo +'</a></span>';
+                        datos_materiales += '<div class="tools">';
+                        datos_materiales += '</div>';
+                        datos_materiales += '</li>';
+                    }
+                    
+                }
+            },
+            error: function(result){
+
+            }
+        });
+    }
+
+    function GetEventoByParticipante(datos_participante){
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>evento/GetEventoByParticipante", 
+            data:{
+                datos: datos_participante
+            },
+            async:false,
+            success: function(result){
+                var datos = JSON.parse(result);
+                console.log(datos);
+                if(datos.data.length == 0){
+                    datos_evento += "<p>Aún no hay eventos asignados</p>";
+                }else{
+                    for(var x=0;x<datos.data.length;x++){
+                        if(datos.data[x].autorizacion=="0"){
+                            datos_evento += '<div class="box box-danger">';
+                        }else{
+                            datos_evento += '<div class="box box-success">';
+                        }
+                        datos_evento += '<div class="box-header with-border">';
+                        datos_evento += '<h3 class="box-title">'+ datos.data[x].titulo +'</h3>';
+                        datos_evento += '<div class="box-tools pull-right">';
+                        datos_evento += '<button type="button" class="btn btn-box-tool" >';
+                        datos_evento += '</button>';
+                        datos_evento += '</div>';
+                        datos_evento += '</div>';
+                        datos_evento += '<div class="box-body">';
+                        datos_evento += '<p><b>Descripción: </b>' + datos.data[x].descripcion + '</p>';
+                        datos_evento += '<p><b>Fecha: </b>' + datos.data[x].fecha + '</p>';
+                        datos_evento += '<p><b>Hora: </b>' + datos.data[x].hora + '</p>';
+                        if(datos.data[x].autorizacion=="0" && datos.data[x].motivo == ""){
+                            datos_evento += '<p><button type="button" class="btn btn-primary" onclick="autorizar('+ datos.data[x].idevento_alumno +');">Autorizar</button> <button type="button" class="btn btn-primary" onclick="no_autorizar('+ datos.data[x].idevento_alumno +');">No Autorizar</button></p>';
+                        }
+                        datos_evento += '</div>';
+                        datos_evento += '</div>';
+                        console.log(datos_evento);
+                    }
+                }
+            },
+            error: function(result){
+                console.log(result);
+            }
+        });
+    }
+
+    function GetComunicadoByParticipante(datos_participante){
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>comunicado/GetComunicadoByParticipante", 
+            data:{
+                datos: datos_participante
+            },
+            async:false,
+            success: function(result){
+                var datos = JSON.parse(result);
+                if(datos.data.length == 0){
+                    datos_comunicado += "<p>Aún no hay comunicados asignados</p>";
+                }else{
+                    for(var x=0;x<datos.data.length;x++){
+                        datos_comunicado += '<li>';
+                        datos_comunicado += '<span class="text"><a target="_blank" href="'+datos.data[x].url+'">'+ datos.data[x].descripcion +'</a></span>';
+                        datos_comunicado += '<div class="tools">';
+                        datos_comunicado += '</div>';
+                        datos_comunicado += '</li>';
+                    }
+                    
+                }
+            },
+            error: function(result){
+                console.log("error");
+            }
+        });
+    }
+
+    function MuestraComunicados(datos){
+        var nombres = datos.nombres;
+        var apellidos = datos.apellidos;
+        return '<h5>'+ nombres + ' ' + apellidos +'</h5>';
+    }
 
     function MuestraGruposCantidad(data)
     {

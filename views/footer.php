@@ -3,7 +3,7 @@
   <footer class="main-footer">
     <!-- To the right -->
     <div class="pull-right hidden-xs">
-      Version 1.5
+      Version 1.8
     </div>
     <!-- Default to the left -->
     <strong>Desarrollado por <a href="http://www.syncromind.net"><img src="<?PHP echo constant('URL'); ?>views/public/img/logo_syncro.png" /></a></strong> 
@@ -107,6 +107,19 @@
       if (element.is('li')) { 
             element.addClass('active').parent().parent('li').addClass('active')
       }
+
+      <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'DOC'){ ?>
+          carga_imagenes();
+      <?PHP } ?>
+
+      <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){ ?>
+          carga_imagenes_apoderado();
+      <?PHP } ?>
+
+      <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'ALU'){ ?>
+          carga_imagenes_alumno();
+      <?PHP } ?>
+        
   });
 </script>
 

@@ -80,6 +80,7 @@ class ParticipanteModel extends Model{
                 :celular_postulante,
                 :fecha_nacimiento,
                 :distrito,
+                :nacionalidad,
                 :centro_estudios,
                 :anio_estudios,
                 :direccion,
@@ -94,7 +95,8 @@ class ParticipanteModel extends Model{
                 :fiebre,
                 :dolor_estomago,
                 :toma_medicamento_diario,
-                :medicamento_diario
+                :medicamento_diario,
+                :instrumento
             )");
             $query->execute([
                 'nombres'                   => $datos['txt_nombres'],
@@ -103,6 +105,7 @@ class ParticipanteModel extends Model{
                 'celular_postulante'        => $datos['txt_celular_alumno'],
                 'fecha_nacimiento'          => $fecha_nacimiento,
                 'distrito'                  => $datos['txt_distrito'],
+                'nacionalidad'              => $datos['sl_nacionalidad_alumno'],
                 'centro_estudios'           => $datos['txt_centro_estudios'],
                 'anio_estudios'             => $datos['txt_grado_instruccion'],
                 'direccion'                 => $datos['txt_direccion'],
@@ -117,7 +120,8 @@ class ParticipanteModel extends Model{
                 'fiebre'                    => $datos['txt_fiebre'],
                 'dolor_estomago'            => $datos['txt_dolor_estomago'],
                 'toma_medicamento_diario'   => $datos['opcion_diario'],
-                'medicamento_diario'        => $datos['txt_medicamento_diario']
+                'medicamento_diario'        => $datos['txt_medicamento_diario'],
+                'instrumento'               => $datos['txt_instrumento']
             ]);
 
             while($row =  $query->fetch()){
@@ -139,6 +143,37 @@ class ParticipanteModel extends Model{
                 'usuario'           => $datos['txt_dni'],
                 'clave'             => $datos['txt_dni']
             ]);
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function GetHijosPorApoderado($datos){
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("SELECT 
+            p.idparticipante,
+            p.nombres,
+            p.apellidos
+            FROM apoderado_alumno aa
+            inner join participantes p
+            on p.idparticipante = aa.idparticipante
+            where aa.idapoderado=:idapoderado");
+
+            $query->execute([
+                'idapoderado' => $datos['idapoderado']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
             
             return $items;
         }catch(PDOException $e){

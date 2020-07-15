@@ -107,12 +107,14 @@
                                     <th>Correo</th>
                                     <th>Celular</th>
                                     <th>Estado</th>
+                                    <th>Motivo</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
             </div>
+            <div id="dvjson"></div>
         </div>
         <!-- End Div Alumnos Autorizados -->
 
@@ -204,6 +206,7 @@
 <script src='<?PHP echo constant('URL'); ?>views/public/js/bootstrap-datetimepicker.js'></script>
 <script src="https://nightly.datatables.net/select/js/dataTables.select.js?_=9a6592f8d74f8f520ff7b22342fa1183"></script>
 
+<script src='<?PHP echo constant('URL'); ?>views/plugins/excelexportjs.js'></script>
 
 <script>
 var alumnos = "";
@@ -508,6 +511,10 @@ function ver_autorizados(id)
             {
                 "targets": 5,
                 "data": "autorizacion"
+            },
+            {
+                "targets": 6,
+                "data": "motivo"
             }
         ],
         "dom": 'Bfrtip',
@@ -516,6 +523,30 @@ function ver_autorizados(id)
                 "extend": "pdfHtml5",
                 "orientation": "landscape",
                 "pageSize": "LEGAL"
+            },
+            {
+                text: 'Exportar',
+                action: function ( e, dt, node, config ) {
+                    $.ajax({
+                        type:'POST',
+                        url: "<?PHP echo constant('URL'); ?>alumno/getAlumnosNOAutorizados",
+                        data: {
+                            "datos": datos
+                        },
+                        success:function(result){
+                            var info = JSON.parse(result);
+                            $("#dvjson").excelexportjs({
+                                containerid: "dvjson", 
+                                datatype: 'json', 
+                                dataset: info, 
+                                columns: getColumns(info)     
+                            });
+                        },
+                        error:function(){
+                            alert("error");
+                        }
+                    });
+                }
             }
         ]
     } );

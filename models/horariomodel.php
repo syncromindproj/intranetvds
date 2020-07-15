@@ -18,7 +18,7 @@ class HorarioModel extends Model
             on g.idgrupo = h.idgrupo
             order by g.descripcion asc");*/
             $query = $this->db->connect()->query("
-            SELECT h.idhorario, g.descripcion as grupo, h.descripcion
+            SELECT h.idhorario, g.descripcion as grupo, h.descripcion, h.tipo
             FROM horario h 
             inner join grupo g
             on g.idgrupo = h.idgrupo");
@@ -73,7 +73,8 @@ class HorarioModel extends Model
             h.descripcion,
             hd.*,
             hd.dia as dia_panel,
-            DATE_FORMAT(hd.dia,'%d/%m/%Y') as dia
+            DATE_FORMAT(hd.dia,'%d/%m/%Y') as dia,
+            te.color
             from participantes p
             inner join grupo_participante gp
             on p.idparticipante= gp.idparticipante
@@ -81,6 +82,8 @@ class HorarioModel extends Model
             on h.idgrupo = gp.idgrupo
             inner join horario_detalle hd
             on hd.idhorario = h.idhorario
+            inner join tipo_evento te
+            on te.id = h.tipo
             where p.idparticipante = :idparticipante
             order by hd.dia asc");
             $query->execute([
@@ -101,13 +104,55 @@ class HorarioModel extends Model
         }
     }
 
+    public function GetHorariobyApoderado($datos)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("
+            SELECT 
+            h.descripcion,
+            hd.*,
+            hd.dia as dia_panel,
+            DATE_FORMAT(hd.dia,'%d/%m/%Y') as dia,
+            te.color
+            from participantes p
+            inner join grupo_participante gp
+            on p.idparticipante= gp.idparticipante
+            inner join horario h
+            on h.idgrupo = gp.idgrupo
+            inner join horario_detalle hd
+            on hd.idhorario = h.idhorario
+            inner join tipo_evento te
+            on te.id = h.tipo
+            where p.idparticipante in (select idparticipante from apoderado_alumno where idapoderado=:idapoderado)
+            order by hd.dia asc");
+            $query->execute([
+                'idapoderado' => $datos['idparticipante']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
+
     public function InsertaHorario($datos)
     {
         try{
-            $query = $this->db->connect()->prepare('insert into horario (idgrupo, descripcion) values (:idgrupo, :descripcion)');
+            $query = $this->db->connect()->prepare('insert into horario (idgrupo, descripcion, tipo) values (:idgrupo, :descripcion, :tipo)');
             $query->execute([
                 'idgrupo'       => $datos['idgrupo'],
-                'descripcion'   => $datos['descripcion']
+                'descripcion'   => $datos['descripcion'],
+                'tipo'          => $datos['tipo']
             ]);
         }catch(PDOException $e){
             return $e->getCode();

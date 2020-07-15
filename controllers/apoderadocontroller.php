@@ -70,5 +70,34 @@ class ApoderadoController extends Controller
         $info = $this->model->VerificaDNI($datos);
         echo json_encode($info);
     }
+
+    public function GetHijos()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $hijos = $this->model->GetHijos($datos);
+        echo json_encode($hijos);
+    }
+
+    public function CambiaImagen()
+    {
+        $img = $_FILES["fl_image"]["name"];
+        $tmp = $_FILES["fl_image"]["tmp_name"];
+        $id  = $_REQUEST["txt_id"];
+        $mensaje = "";
+        
+        $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+        
+        $path   = 'views/dist/img';
+        $rand = rand(10000, 99999);
+        $path .= "/" . $rand . "_file.".$ext;
+        if(move_uploaded_file($tmp,$path)) 
+        {
+            $mensaje = $this->model->ActualizaImageApoderado($id, $path);
+        }
+        
+        echo $mensaje;
+    }
+
 }
 ?>

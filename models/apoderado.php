@@ -11,5 +11,6 @@ class Apoderado
     public $direccion;
     public $telefono_fijo;
     public $encargado_pagos;
+    public $imagen;
 }
 ?>

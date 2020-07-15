@@ -95,5 +95,23 @@ class UsuarioModel extends Model
             return $e->getCode();
         }
     }
+
+    public function CambiarClave($datos)
+    {
+        try{
+            $query = $this->db->connect()->prepare("
+            update usuario
+            set clave=MD5(:clave)
+            WHERE idparticipante = :idparticipante and idtipo='PDF'");
+            $query->execute([
+                'clave'             => $datos["clave"],
+                'idparticipante'    => $datos["id"]
+            ]);
+            
+            return "OK";
+        }catch(PDOException $e){
+            return $e->getCode();
+        }
+    }
 }
 ?>

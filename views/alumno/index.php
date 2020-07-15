@@ -9,8 +9,8 @@
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">Reportes</a></li>
-        <li class="active">Reporte de Audiciones 2019</li>
+        <li><a href="#">Intranet</a></li>
+        <li class="active">Gestión de Alumnos</li>
       </ol>
     </section>
 
@@ -30,15 +30,20 @@
             <div class="col-xs-12">
             <div class="box">
                 <div class="box-header">
-                <h3 class="box-title">Audiciones 2019</h3>
+                <h3 class="box-title"><?PHP echo $this->subtitle ; ?></h3>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
+                    <div id="confirm_delete_alumno" class="alert alert-success alert-dismissible" style="display:none;">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <h4><i class="icon fa fa-check"></i> Confirmación</h4>
+                        <span>El registro fue eliminado</span>
+                    </div>
                     <table id="alumnos" class="table table-striped table-bordered" style="width:100%">
                         <thead>
                             <tr>
-                                <th>Nombres</th>
                                 <th>Apellidos</th>
+                                <th>Nombres</th>
                                 <th>Edad</th>
                                 <th>Grupo</th>
                                 <th>Opciones</th>
@@ -345,6 +350,38 @@
         </div>
         <!-- Fin Div Ver -->
 
+        <!-- Div Exportar -->
+        <div id="md_exportar" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Exportar Datos</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            Seleccione las columnas que desea exportar:
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;" id="contenido_columnas">
+                        
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="btn_exportar" name="btn_exportar" class="btn btn-primary">Exportar</button>
+                    <div id="dvjson"></div>
+
+                </div>
+                
+                </div>
+            </div>
+        </div>
+        <!-- Fin Div Exportar -->
+
          <!-- Delete Modal -->
          <div class="modal modal-danger fade" id="modal_delete">
           <div class="modal-dialog">
@@ -360,6 +397,27 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
                 <button type="button" id="btn_elimina" class="btn btn-outline">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Delete Modal -->
+
+        <!-- Delete Modal -->
+        <div class="modal modal-danger fade" id="modal_delete_alumno">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">¿Eliminar Registro?</h4>
+              </div>
+              <div class="modal-body">
+                <p>Desea eliminar el registo: <span id="sp_alumno"></span></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn_elimina_alumno" class="btn btn-outline">Eliminar</button>
               </div>
             </div>
           </div>
@@ -383,10 +441,15 @@
 <script src='<?PHP echo constant('URL'); ?>views/public/js/bootstrap-datepicker.min.js'></script>
 <script src='<?PHP echo constant('URL'); ?>views/public/js/bootstrap-datepicker.es.min.js'></script>
 
+<script src='<?PHP echo constant('URL'); ?>views/plugins/excelexportjs.js'></script>
+
 <script>
+    var columnas_seleccionadas = [];
+    
 	$(document).ready(function() {
         var idalumno = "";
         var apoderados = "";
+        var alumnos = "";
         
         $('#txt_seguro_caducidad').datepicker({
 			maxViewMode: 2,
@@ -417,7 +480,7 @@
         }
         var info    = {};
 
-		var alumnos = $('#alumnos').DataTable( {
+		alumnos = $('#alumnos').DataTable( {
             "ajax": ajax["ajax"],
 			"responsive":true,
 			"scrollX":        false,
@@ -430,11 +493,11 @@
 			},
             "columnDefs":[
 			    {
-                    "targets": 0,
+                    "targets": 1,
                     "data": "nombres"
                 },            
                 {
-                    "targets": 1,
+                    "targets": 0,
                     "data": "apellidos",
                 },            
                 {
@@ -450,7 +513,7 @@
                     "data":"idparticipante",
                     "render": function(url, type, full){
                         <?PHP if($_SESSION['tipo'] != "DOC"){ ?>
-                        return '<button type="button" onclick="ver_participante('+ full[0] +');" class="btn btn-primary"><i class="fa fa-pencil"></i> Ver</button> <button type="button" onclick="asignar_grupo('+ full[0] +');" class="btn btn-warning"><i class="fa fa-plus-square"></i> Asignar</button>'
+                        return '<button type="button" onclick="ver_participante('+ full[0] +');" class="btn btn-primary"><i class="fa fa-pencil"></i> Ver</button> <button type="button" onclick="asignar_grupo('+ full[0] +');" class="btn btn-warning"><i class="fa fa-plus-square"></i> Asignar</button> <button type="button" onclick="alert_elimina_alumno('+ full[0] +');" class="btn btn-danger"><i class="fa fa-remove"></i> Eliminar</button>'
                         <?PHP }elseif($_SESSION['tipo'] == "DOC"){ ?>
                         return '<button type="button" onclick="ver_participante('+ full[0] +');" class="btn btn-primary"><i class="fa fa-pencil"></i> Ver</button>'
                         <?PHP } ?>
@@ -465,14 +528,108 @@
 					"extend": "pdfHtml5",
 					"orientation": "landscape",
 					"pageSize": "LEGAL"
-				}
+				},
+                {
+                    text: 'Exportar',
+					action: function ( e, dt, node, config ) {
+                        $("#md_exportar").modal();
+                        var columnas = [];
+                        //columnas.push("nombres");
+                        //columnas.push("apellidos");
+                        columnas.push("correo_postulante");
+                        columnas.push("celular_postulante");
+                        columnas.push("fecha_nacimiento");
+                        columnas.push("distrito");
+                        columnas.push("centro_estudios");
+                        columnas.push("anio_estudios");
+
+                        columnas.push("dni");
+                        columnas.push("direccion");
+                        columnas.push("estudia_canto");
+                        columnas.push("donde_estudia");
+                        columnas.push("seguro_salud");
+                        columnas.push("seguro_caducidad");
+                        columnas.push("enfermedades");
+                        columnas.push("alergias");
+                        columnas.push("dolor_cabeza");
+                        columnas.push("fiebre");
+                        columnas.push("dolor_estomago");
+                        columnas.push("toma_medicamento_diario");
+                        columnas.push("medicamento_diario");
+                        columnas.push("nacionalidad");
+                        
+                        var html = "";
+                        for(var x=0;x<columnas.length;x++){
+                            html += '<div class="col-md-6">';
+                            html += '<label>';
+                            html += '<input value="la.'+ columnas[x] +'" id="chk_'+ columnas[x] +'" name="chk_'+ columnas[x] +'" type="checkbox"> ' + columnas[x];
+                            html += '</label>';
+                            html += '</div>';
+                        }
+                        //console.log(html);
+                        $("#contenido_columnas").html(html);
+                    }
+                }
 			]
 		} );
 
         alumnos
-            .order( [ 1, 'asc' ] )
+            .order( [ 0, 'asc' ] )
             .draw();
 
+        $("#btn_elimina_alumno").click(function(){
+            var id = $("#btn_elimina_alumno").attr("data-value");;
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>alumno/EliminaAlumno", 
+                data:{
+                    datos: '{"idalumno": "' + id + '"}'
+                },
+                success: function(result){
+                    console.log(result);
+                    $('#modal_delete_alumno').modal('hide');
+                    alumnos.ajax.reload();	
+                    $("#confirm_delete_alumno").show().delay(2000).fadeOut();
+                },
+                error:function(result){
+                    console.log(result);
+                }
+            });
+        });
+
+        $("#btn_exportar").click(function(){
+            var filtro = alumnos.search();
+            $('#contenido_columnas input:checked').each(function() {
+                columnas_seleccionadas.push($(this).attr('value'));
+            });
+            var info = {};
+            info['columnas'] = columnas_seleccionadas;
+            info['filtro'] = filtro;
+            var datos = JSON.stringify(info);
+            
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>alumno/Exportar", 
+                data:{
+                    datos: datos
+                },
+                success: function(result){
+                    console.log(result);
+                    var info = JSON.parse(result);
+                    $("#dvjson").excelexportjs({
+                        containerid: "dvjson", 
+                        datatype: 'json', 
+                        dataset: info, 
+                        columns: getColumns(info)     
+                    });
+                    $("#md_exportar").modal('hide');
+                },
+                error: function(result){
+
+                }
+            });
+            console.log(columnas_seleccionadas);
+        });
         
         $("#frm_apoderado").submit(function(event){
             event.preventDefault();
@@ -905,6 +1062,13 @@
         $("#btn_elimina").attr("data-value", id);
     }
 
+    function alert_elimina_alumno(id)
+    {
+        $("#modal_delete_alumno").modal();
+        $("#btn_elimina_alumno").attr("data-value", id);
+        $("#sp_alumno").html(id);
+    }
+
     $("#btn_elimina").click(function(){
         var id = $("#btn_elimina").attr("data-value");;
         $.ajax({
@@ -924,6 +1088,8 @@
             }
         });
     });
+
+    
     
 </script>
 

@@ -42,11 +42,12 @@ class ApoderadoModel extends Model
             $fijo               = $datos['fijo'];
             $tipo               = $datos['tipo'];
             $encargado          = $datos['encargado'];
+            $nacionalidad       = $datos['nacionalidad'];
 
             $con = $this->db->connect();
             $query = $con->prepare('insert into
-            apoderado (nombres, apellidos, celular, correo, dni, direccion, telefono_fijo, tipo, encargado_pagos)
-            values (:nombres, :apellidos, :celular, :correo, :dni, :direccion, :fijo, :tipo, :encargado)');
+            apoderado (nombres, apellidos, celular, correo, dni, direccion, telefono_fijo, tipo, encargado_pagos, nacionalidad)
+            values (:nombres, :apellidos, :celular, :correo, :dni, :direccion, :fijo, :tipo, :encargado, :nacionalidad)');
             $query->execute([
                 'nombres'           => $nombres,
                 'apellidos'         => $apellidos,
@@ -56,7 +57,8 @@ class ApoderadoModel extends Model
                 'direccion'         => $direccion,
                 'fijo'              => $fijo,
                 'tipo'              => $tipo,
-                'encargado'         => $encargado
+                'encargado'         => $encargado,
+                'nacionalidad'      => $nacionalidad
             ]);
             $idapoderado = $con->lastInsertId();
 
@@ -138,6 +140,7 @@ class ApoderadoModel extends Model
                 $item->direccion        = $row['direccion'];
                 $item->telefono_fijo    = $row['telefono_fijo'];
                 $item->encargado_pagos  = $row['encargado_pagos'];
+                $item->imagen           = $row['imagen'];
             }
 
             return $item;
@@ -249,6 +252,56 @@ class ApoderadoModel extends Model
 
         }catch(PDOException $e){
             return [];
+        }
+    }
+
+    public function GetHijos($datos)
+    {
+        $items = [];
+        try{
+            $query = $this->db->connect()->prepare("
+            SELECT distinct
+            p.idparticipante,
+            p.nombres,
+            p.apellidos
+            FROM apoderado_alumno aa
+            inner join apoderado a
+            on a.idapoderado = aa.idapoderado
+            inner JOIN participantes p
+            on p.idparticipante = aa.idparticipante
+            WHERE 
+            aa.idapoderado = :idapoderado");
+            $query->execute([
+                'idapoderado'  => $datos['idapoderado']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items["data"][]  = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+
+            return $items;
+
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function ActualizaImageApoderado($id, $imagen)
+    {
+        try{
+            $query = $this->db->connect()->prepare('update apoderado set imagen = :imagen where idapoderado = :id');
+            $query->execute([
+                'imagen'            => $imagen,
+                'id'                => $id
+            ]);
+
+            return "Registro actualizado";
+        }catch(PDOException $e){
+            return $e->getCode();
         }
     }
 }

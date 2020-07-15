@@ -20,8 +20,8 @@
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">Reportes</a></li>
-        <li class="active">Reporte de Audiciones 2019</li>
+        <li><a href="#">Intranet</a></li>
+        <li class="active">Gestión de Docentes</li>
       </ol>
     </section>
 

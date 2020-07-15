@@ -44,11 +44,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link href="https://fonts.googleapis.com/css?family=Anton" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Exo" rel="stylesheet">
 
-  <style>
-    input{
-      text-transform:uppercase;
-    }
-  </style>
+
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -148,7 +144,7 @@ desired effect
       <?PHP if($this->title != "Registro"){ ?>
       <div class="user-panel">
         <div class="pull-left image">
-          <img src="<?PHP echo constant('URL'); ?>views/dist/img/avatar2.png" class="img-circle" alt="User Image">
+          <img id="foto_perfil4" src="<?PHP echo constant('URL'); ?>views/dist/img/avatar2.png" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
           <p><?php echo($_SESSION['nombres']); ?></p>
@@ -162,6 +158,11 @@ desired effect
       <?PHP require 'views/menu.php'; ?>
       <!-- /.sidebar-menu -->
       <script>
+        var info        = {};
+        info["id"]    = '<?PHP echo($_SESSION['idparticipante']); ?>';
+        var myJsonString  = JSON.stringify(info);
+
+        
         function cierra_sesion(){
           $.ajax({
               type: "POST",
@@ -174,6 +175,74 @@ desired effect
                   console.log(result);
               }
           });
+        }
+
+        function carga_imagenes_docente(){
+          $.ajax({
+              type: "POST",
+              url: "<?PHP echo constant('URL'); ?>docente/VerDocente", 
+              data:{
+                  datos: myJsonString
+              },
+              success: function(result){
+                  var docente = JSON.parse(result);
+                  console.log(result);
+                  $("#foto_perfil1").attr("src", docente[0].imagen);
+                  $("#foto_perfil2").attr("src", docente[0].imagen);
+                  $("#foto_perfil3").attr("src", docente[0].imagen);
+                  $("#foto_perfil4").attr("src", docente[0].imagen);
+              },
+              error:function(result){
+                  console.log(result);
+              }
+          });
+        }
+
+        function carga_imagenes_apoderado(){
+          $.ajax({
+              type: "POST",
+              url: "<?PHP echo constant('URL'); ?>apoderado/GetApoderado", 
+              data:{
+                  datos: myJsonString
+              },
+              success: function(result){
+                  var datos = jQuery.parseJSON(result);
+                  console.log(result);
+                  $("#foto_perfil1").attr("src", datos.imagen);
+                  $("#foto_perfil2").attr("src", datos.imagen);
+                  $("#foto_perfil3").attr("src", datos.imagen);
+                  $("#foto_perfil4").attr("src", datos.imagen);
+              },
+              error:function(result){
+                  console.log(result);
+              }
+          });
+          
+        }
+
+        function carga_imagenes_alumno(){
+          var info        = {};
+          info["idalumno"]    = '<?PHP echo($_SESSION['idparticipante']); ?>';
+          var myJsonString  = JSON.stringify(info);
+          $.ajax({
+              type: "POST",
+              url: "<?PHP echo constant('URL'); ?>alumno/VerAlumno", 
+              data:{
+                  datos: myJsonString
+              },
+              success: function(result){
+                  var datos = jQuery.parseJSON(result);
+                  console.log(result);
+                  $("#foto_perfil1").attr("src", datos.imagen);
+                  $("#foto_perfil2").attr("src", datos.imagen);
+                  $("#foto_perfil3").attr("src", datos.imagen);
+                  $("#foto_perfil4").attr("src", datos.imagen);
+              },
+              error:function(result){
+                  console.log(result);
+              }
+          });
+          
         }
       </script>
     </section>

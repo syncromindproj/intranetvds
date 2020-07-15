@@ -34,7 +34,7 @@ class UsuarioController extends Controller
             $usuarios['data']['estado'] = "error_datos";
         }
 
-        if($esadmin == 1 || $tipo == 'ALU' || $tipo == 'DOC'){
+        if($esadmin == 1 || $tipo == 'ALU' || $tipo == 'DOC' || $tipo == 'PDF'){
             $usuarios = $this->model->Login($datos["usuario"], $datos["clave"]);
             if($usuarios['data']['estado'] != "error_datos" && count($usuarios['data'])>0 && $usuarios['data'][0]['nombres'] != null){
                 $_SESSION['nombres']        = $usuarios['data'][0]['nombres'];
@@ -72,6 +72,14 @@ class UsuarioController extends Controller
         $datos  = json_decode($datos, true);
         $upd = $this->model->ActualizaAprobacionPagos($datos['usuario']);
         echo $upd;
+    }
+
+    public function CambiarClave()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos  = json_decode($datos, true);
+        $this->model->CambiarClave($datos);
+        echo "La clave se cambio";
     }
 } 
 ?>

@@ -14,7 +14,7 @@ class AlumnoModel extends Model{
             p.idparticipante,
             p.nombres,
             p.apellidos,
-            p.edad,
+            TIMESTAMPDIFF(YEAR, p.fecha_nacimiento, CURDATE()) AS edad,
             COALESCE(g.descripcion, 'Sin grupo asignado') as grupo,
             COALESCE(madres.nombres, 'SIN DATOS ASIGNADOS') as datos_madre,
             COALESCE(padres.nombres, 'SIN DATOS ASIGNADOS') as datos_padre
@@ -47,6 +47,7 @@ class AlumnoModel extends Model{
             on padres.idparticipante = p.idparticipante
             
             where p.aprobado =1
+            and p.estado = 1
             order by p.apellidos asc");
 
             while($row =  $query->fetch()){
@@ -74,7 +75,8 @@ class AlumnoModel extends Model{
             p.nombres,
             p.correo_postulante,
             p.celular_postulante,
-            CASE WHEN ea.autorizacion = '1' THEN 'AUTORIZADO' ELSE 'SIN AUTORIZACION' END AS autorizacion
+            CASE WHEN ea.autorizacion = '1' THEN 'AUTORIZADO' ELSE 'SIN AUTORIZACION' END AS autorizacion,
+            ea.motivo
             FROM evento_alumno ea
             inner join participantes p
             on p.idparticipante = ea.idalumno
@@ -92,6 +94,39 @@ class AlumnoModel extends Model{
             if(count($items) == 0){
                 $items['data'] = "";
             }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
+    public function getAlumnosNOAutorizados($datos)
+    {
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("SELECT 
+            p.correo_postulante,
+            ea.motivo
+            FROM evento_alumno ea
+            inner join participantes p
+            on p.idparticipante = ea.idalumno
+            WHERE ea.idevento = :idevento
+            and ea.autorizacion = '0'");
+
+            $query->execute([
+                'idevento' => $datos['idevento']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items[]  = $row;
+            }
+
+            if(count($items) == 0){
+                $items = "";
+            }
+            return $items; 
             
             return $items;
         }catch(PDOException $e){
@@ -274,6 +309,27 @@ class AlumnoModel extends Model{
         ]);
     }
 
+    public function EliminaAlumno($id)
+    {
+        //Eliminar alumno
+        $query = $this->db->connect()->prepare('update participantes set estado=0 where idparticipante=:id');
+        $query->execute([
+            'id' => $id
+        ]);
+
+        //Eliminar usuario
+        $query = $this->db->connect()->prepare('update usuario set estado=0 where idparticipante=:id and idtipo="ALU"');
+        $query->execute([
+            'id' => $id
+        ]);
+
+        //Eliminar apoderados
+        $query = $this->db->connect()->prepare('update apoderado_alumno set estado=0 where idparticipante=:id');
+        $query->execute([
+            'id' => $id
+        ]);
+    }
+
     public function ActualizaAlumno($datos)
     {
         try{
@@ -281,6 +337,9 @@ class AlumnoModel extends Model{
             $date               = str_replace('/', '-', $time);
             $seguro_caducidad   = date("Y-m-d", strtotime($date));
 
+            $time_nacimiento    = $datos['txt_nacimiento'];
+            $date_nacimiento    = str_replace('/', '-', $time_nacimiento);
+            $nacimiento         = date("Y-m-d", strtotime($date_nacimiento));
             $query = $this->db->connect()->prepare('
             update participantes p
             inner join participante_detalle pd
@@ -290,6 +349,7 @@ class AlumnoModel extends Model{
             p.apellidos = :apellidos,
             p.fecha_nacimiento = :fecha_nacimiento,
             p.distrito = :distrito,
+            p.nacionalidad = :nacionalidad,
             p.celular_postulante = :celular_postulante,
             p.correo_postulante = :correo_postulante,
             p.centro_estudios = :centro_estudios,
@@ -306,14 +366,16 @@ class AlumnoModel extends Model{
             pd.fiebre = :fiebre,
             pd.dolor_estomago = :dolor_estomago,
             pd.toma_medicamento_diario = :toma_medicamento_diario,
-            pd.medicamento_diario = :medicamento_diario
+            pd.medicamento_diario = :medicamento_diario,
+            pd.instrumento = :instrumento
             where p.idparticipante = :idparticipante');
             $query->execute([
-                'nombres'                   => strtoupper($datos['txt_nombres']),
-                'apellidos'                 => strtoupper($datos['txt_apellidos']),
+                'nombres'                   => $datos['txt_nombres'],
+                'apellidos'                 => $datos['txt_apellidos'],
                 'idparticipante'            => $datos['idalumno'],
-                'fecha_nacimiento'          => $datos['txt_nacimiento'],
+                'fecha_nacimiento'          => $nacimiento,
                 'distrito'                  => $datos['txt_distrito'],
+                'nacionalidad'              => $datos['nacionalidad'],
                 'celular_postulante'        => $datos['txt_celular_alumno'],
                 'correo_postulante'         => $datos['txt_correo_alumno'],
                 'centro_estudios'           => $datos['txt_centro_estudios'],
@@ -331,6 +393,7 @@ class AlumnoModel extends Model{
                 'dolor_estomago'            => $datos['txt_dolor_estomago'],
                 'toma_medicamento_diario'   => $datos['opcion_diario'],
                 'medicamento_diario'        => $datos['txt_medicamento_diario'],
+                'instrumento'               => $datos['txt_instrumento']
             ]);
         }catch(PDOException $e){
             return $e->getCode();
@@ -341,7 +404,7 @@ class AlumnoModel extends Model{
         $item = new Alumno();
 
         $query = $this->db->connect()->prepare("SELECT 
-        p.*, pd.*, DATE_FORMAT(pd.seguro_caducidad, '%d/%m/%Y') as fecha_seguro_caducidad from 
+        p.*, pd.* from 
         participantes p
         left join participante_detalle pd
         on p.idparticipante = pd.idparticipante
@@ -359,6 +422,7 @@ class AlumnoModel extends Model{
                 $item->fecha_nacimiento         = $row['fecha_nacimiento'];
                 $item->edad                     = $row['edad'];
                 $item->distrito                 = $row['distrito'];
+                $item->nacionalidad             = $row['nacionalidad'];
                 $item->centro_estudios          = $row['centro_estudios'];
                 $item->anio_estudios            = $row['anio_estudios'];
                 $item->nombre_apoderado         = $row['nombre_apoderado'];
@@ -372,7 +436,7 @@ class AlumnoModel extends Model{
                 $item->estudia_canto            = $row['estudia_canto'];
                 $item->donde_estudia            = $row['donde_estudia'];
                 $item->seguro_salud             = $row['seguro_salud'];
-                $item->seguro_caducidad         = $row['fecha_seguro_caducidad'];
+                $item->seguro_caducidad         = $row['seguro_caducidad'];
                 $item->enfermedades             = $row['enfermedades'];
                 $item->alergias                 = $row['alergias'];
                 $item->dolor_cabeza             = $row['dolor_cabeza'];
@@ -380,6 +444,8 @@ class AlumnoModel extends Model{
                 $item->dolor_estomago           = $row['dolor_estomago'];
                 $item->toma_medicamento_diario  = $row['toma_medicamento_diario'];
                 $item->medicamento_diario       = $row['medicamento_diario'];
+                $item->imagen                   = $row['imagen'];
+                $item->instrumento              = $row['instrumento'];
             }
             
             return $item;
@@ -446,6 +512,83 @@ order by p.apellidos asc");
 
         }catch(PDOException $e){
             return [];
+        }
+    }
+
+    public function Exportar($datos)
+    {
+        $items = [];
+        $columnas = "";
+        $filtro = "";
+
+        try{
+            $lista_columnas = $datos['columnas'];
+            $filtro = $datos['filtro'];
+            for($x=0;$x<count($datos['columnas']);$x++){
+                $columnas.=$datos['columnas'][$x] . ", ";
+            }
+            $columnas = substr($columnas, 0, (strlen($columnas)-2));
+            
+            /*$sql = "select concat(la.nombres, ' ', la.apellidos) as nombres, ". $columnas ." from listaalumnos la ";
+            $sql .= "inner join grupo_participante gp ";
+            $sql .= "on gp.idparticipante = la.idparticipante ";
+            $sql .= "inner join grupo g ";
+            $sql .= "on g.idgrupo = gp.idgrupo ";
+            $sql .= "inner join participantes p ";
+            $sql .= "on p.idparticipante = la.idparticipante ";
+            $sql .= "where g.descripcion like '%".$filtro."%' and p.estado=1 order by nombres asc";*/
+            $sql = "select concat(la.nombres, ' ', la.apellidos) as nombres,  ";
+            $sql .= "la.correo_postulante, ";
+            $sql .= "concat(apo.nombres, ' ', apo.apellidos) as nombres_apoderado, ";
+            $sql .= "apo.correo, ";
+            $sql .= "apo.celular, " . $columnas ;
+            $sql .= " from listaalumnos la  ";
+            $sql .= "inner join grupo_participante gp  ";
+            $sql .= "on gp.idparticipante = la.idparticipante  ";
+            $sql .= "inner join grupo g  ";
+            $sql .= "on g.idgrupo = gp.idgrupo  ";
+            $sql .= "inner join participantes p  ";
+            $sql .= "on p.idparticipante = la.idparticipante  ";
+            $sql .= "INNER join apoderado_alumno aa ";
+            $sql .= "on aa.idparticipante = la.idparticipante  ";
+            $sql .= "inner join apoderado apo ";
+            $sql .= "on apo.idapoderado = aa.idapoderado ";
+            $sql .= "where g.descripcion like '%".$filtro."%' and  p.estado=1 order by nombres asc ";
+            
+            $query = $this->db->connect()->prepare($sql);
+            $query->execute();
+            
+            $y=0;
+            while($row =  $query->fetch(PDO::FETCH_ASSOC)){
+                $items[]  = $row;
+                //$item->idparticipante = $row['idparticipante'];
+            }
+
+            if(count($items) == 0){
+                $items = "";
+            }
+            return $items; 
+                
+
+        }catch(PDOException $e){
+            return [];
+        } 
+            
+        
+    }
+
+    public function ActualizaImageAlumno($id, $imagen)
+    {
+        try{
+            $query = $this->db->connect()->prepare('update participantes set imagen = :imagen where idparticipante = :id');
+            $query->execute([
+                'imagen'            => $imagen,
+                'id'                => $id
+            ]);
+
+            return "Registro actualizado";
+        }catch(PDOException $e){
+            return $e->getCode();
         }
     }
 }
