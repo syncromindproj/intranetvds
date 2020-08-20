@@ -220,6 +220,16 @@
       droppable : false, // this allows things to be dropped onto the calendar !!!
       eventClick: function(data, event, view) {
         
+      },
+      eventRender: function(event, element) {
+          var start = moment(event.start, "DD/MM/YYYY");
+          var end = moment(event.end, "DD/MM/YYYY");
+          
+        var tooltip = "DÍA: " + start.format('DD-MM-YYYY') + "<br> HORA INICIO: " + start.format('HH:mm') + "<br> HORA FIN: " + end.format('HH:mm') + "<br> DESCRIPCIÓN:" + event.description;
+        $(element).attr("data-original-title", tooltip)
+        $(element).attr("data-html", "true")
+        $(element).tooltip({ container: "body"})
+        console.log(event);
       }
     });
 

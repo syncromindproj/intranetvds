@@ -68,7 +68,7 @@ desired effect
 -->
 <body class="hold-transition skin-blue sidebar-mini">
 <input type="hidden" id="txt_idparticipante" value="<?PHP echo($_SESSION['idparticipante']); ?>" />
-<input type="hidden" id="txt_grupoparticipante" value="" />
+<input type="text" style="display:none;" id="txt_grupoparticipante" />
 <div class="wrapper">
     
   <!-- Main Header -->

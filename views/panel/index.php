@@ -150,7 +150,7 @@
     <!-- Main content -->
     <section class="content">
         <div class="row">
-            <section class="col-lg-4 connectedSortable">
+            <section class="col-lg-3 connectedSortable">
                 <div class="box box-primary" id="box_eventos">
                     <div class="box-header">
                         <i class="ion ion-clipboard"></i>
@@ -164,47 +164,70 @@
                 </div>
             
             </section>
-            <section class="col-lg-4 connectedSortable">
-            <!-- TO DO List -->
-            <div class="box box-primary">
-                <div class="box-header">
-                    <i class="ion ion-clipboard"></i>
-                    <h3 class="box-title">Comunicados</h3>
+            <section class="col-lg-3 connectedSortable">
+                <!-- TO DO List -->
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <i class="ion ion-clipboard"></i>
+                        <h3 class="box-title">Comunicados</h3>
+                    </div>
+                    <div class="box-body">
+                        <ul class="todo-list" id="lista_comunicados">
+                            
+                            
+                        </ul>
+                        </div>
+                    <div class="box-footer clearfix no-border">
+                    
+                    </div>
                 </div>
-                <div class="box-body">
-                    <ul class="todo-list" id="lista_comunicados">
-                        
+                <!-- /.box -->
+            </section>
+            <section class="col-lg-3 connectedSortable">
+                <!-- TO DO List -->
+                <div class="box box-primary">
+                    <div class="box-header">
+                    <i class="ion ion-clipboard"></i>
+
+                    <h3 class="box-title">Materiales Disponibles</h3>
+
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                    <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
+                    <ul class="todo-list" id="div_docrecibidos">
                         
                     </ul>
                     </div>
-                <div class="box-footer clearfix no-border">
-                
-                </div>
-            </div>
-            <!-- /.box -->
-            </section>
-            <section class="col-lg-4 connectedSortable">
-            <!-- TO DO List -->
-            <div class="box box-primary">
-                <div class="box-header">
-                <i class="ion ion-clipboard"></i>
-
-                <h3 class="box-title">Materiales Disponibles</h3>
-
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
-                <ul class="todo-list" id="div_docrecibidos">
+                    <!-- /.box-body -->
+                    <div class="box-footer clearfix no-border">
                     
-                </ul>
+                    </div>
                 </div>
-                <!-- /.box-body -->
-                <div class="box-footer clearfix no-border">
-                
+                <!-- /.box -->
+            </section>
+            <section class="col-lg-3 connectedSortable">
+                <!-- TO DO List -->
+                <div class="box box-warning">
+                    <div class="box-header">
+                    <i class="ion ion-clipboard"></i>
+
+                    <h3 class="box-title">Multimedia</h3>
+
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                    <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
+                    <ul class="todo-list" id="div_multimedia">
+                        
+                    </ul>
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer clearfix no-border">
+                    
+                    </div>
                 </div>
-            </div>
-            <!-- /.box -->
+                <!-- /.box -->
             </section>
         </div>
 
@@ -231,6 +254,44 @@
             </section>
             
         </div>
+
+
+        <!-- Div Ver Multimedia -->
+        <div id="md_ver" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title"><span id="modal_title_fotos">Ver Multimedia</span></h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <img class="img-responsive" id="img_multimedia" />
+                                <div id="div_vid" class="embed-responsive embed-responsive-16by9" style="display:none;">
+                                    <video id="vid_multimedia" controls >
+                                        <source src="" type="video/mp4">
+                                    </video>
+                                </div>
+                                <div id="div_audio" style="display:none;">
+                                    <audio controls id="audio_multimedia">
+                                        <source src="" type="audio/mpeg">
+                                    </audio>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        <!-- End Div Ver Multimedia -->
         
     </section>
 <?PHP } ?>
@@ -456,6 +517,41 @@
 
                 }
             });
+
+            //GetMultimediaByGrupo
+            var infogrupo = {};
+            infogrupo['idgrupo'] = $("#txt_grupoparticipante").val();
+            var datos_grupo = JSON.stringify(infogrupo);
+            console.log("infogrupo", infogrupo);
+            
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>multimedia/GetMultimediaByGrupo", 
+                data:{
+                    datos: datos_grupo
+                },
+                success: function(result){
+                    var datos = JSON.parse(result);
+                    var div_multimedia = $("#div_multimedia");
+                    var html = "";
+                    if(datos.data.length == 0){
+                        html += "<p>Aún no hay archivos multimedia asignados</p>";
+                    }else{
+                        for(var x=0;x<datos.data.length;x++){
+                            html += '<li>';
+                            html += '<span class="text"><a onclick="ver_multimedia(this);" data-url="'+ datos.data[x].url +'" href="#">'+ datos.data[x].descripcion +'</a></span>';
+                            html += '<div class="tools">';
+                            html += '</div>';
+                            html += '</li>';
+                        }
+                        
+                    }
+                    div_multimedia.html(html);
+                },
+                error: function(result){
+
+                }
+            });
             
             $.ajax({
                 type: "POST",
@@ -589,6 +685,54 @@
             
         <?PHP } ?>
     });
+
+    function ver_multimedia(data){
+        var key = $(data).data('url')
+        $('#md_ver').modal();
+
+        var info = {};
+        info["key"]      = key;
+        var datos = JSON.stringify(info);
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>multimediaalumno/S3GetObject", 
+            data:{
+                datos: datos
+            },
+            success: function(result){
+                var datos = JSON.parse(result);
+                console.log(datos.extension);
+                switch(datos.extension){
+                    case "jpg":
+                        $("#div_vid").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#img_multimedia").css("display", "block");
+                        $("#img_multimedia").attr("src", datos.url);
+                        break;
+                    case "mp4":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+                    case "mp3":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+                }
+                
+            },
+            error: function(result){
+                console.log(result);
+            }
+        });
+        
+    }
 
     function GetHijos(datos_apoderado){
         datos_comunicado = "";
@@ -877,18 +1021,19 @@
         var info        = {};
         info["id"]    = '<?PHP echo($_SESSION['idparticipante']); ?>';
         var myJsonString  = JSON.stringify(info);
-        console.log(myJsonString);
+        //console.log(myJsonString);
 
         $.ajax({
             type: "POST",
             url: "<?PHP echo constant('URL'); ?>grupo/GetGrupoParticipante", 
+            async: false,
             data:{
                 datos: myJsonString
             },
             success: function(result){
                 var datos = JSON.parse(result);
                 $("#txt_grupoparticipante").val(datos.data[0].idgrupo);
-                console.log(datos);
+                console.log("grupo: ", datos.data[0].idgrupo);
             },
             error:function(result){
                 console.log(result);

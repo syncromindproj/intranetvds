@@ -101,15 +101,15 @@
 <script>
   $(document).ready(function() {
       var url = window.location; 
-      console.log(url);
+      console.log("url: ", url.href);
       var element = $('ul.sidebar-menu a').filter(function() {
       return this.href == url || url.href.indexOf(this.href) == 0; }).parent().addClass('active');
       if (element.is('li')) { 
-            element.addClass('active').parent().parent('li').addClass('active')
+          element.addClass('active').parent().parent('li').addClass('active')
       }
 
       <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'DOC'){ ?>
-          carga_imagenes();
+          //carga_imagenes();
       <?PHP } ?>
 
       <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){ ?>
