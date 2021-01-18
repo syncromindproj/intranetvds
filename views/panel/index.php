@@ -539,7 +539,7 @@
                     }else{
                         for(var x=0;x<datos.data.length;x++){
                             html += '<li>';
-                            html += '<span class="text"><a onclick="ver_multimedia(this);" data-url="'+ datos.data[x].url +'" href="#">'+ datos.data[x].descripcion +'</a></span>';
+                            html += '<span class="text"><a onclick="ver_multimedia(this);" data-url="'+ datos.data[x].url +'" href="#">'+ datos.data[x].titulo +'</a></span>';
                             html += '<div class="tools">';
                             html += '</div>';
                             html += '</li>';
@@ -710,14 +710,64 @@
                         $("#img_multimedia").css("display", "block");
                         $("#img_multimedia").attr("src", datos.url);
                         break;
-                    case "mp4":
+
+                    case "mp4" || "MP4":
                         $("#img_multimedia").css("display", "none");
                         $("#div_audio").css("display", "none");
                         
                         $("#div_vid").css("display", "block");
                         $("#vid_multimedia").attr("src", datos.url);
                         break;
-                    case "mp3":
+
+                    case "mpeg" || "MPEG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mpg" || "MPG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "MOV":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mov":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+                
+                    case "mp3" || "MP3":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4a" || "M4A":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4v" || "M4V":
                         $("#img_multimedia").css("display", "none");
                         $("#div_vid").css("display", "none");
                         

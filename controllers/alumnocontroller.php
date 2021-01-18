@@ -44,6 +44,15 @@ class AlumnoController extends Controller{
         //print_r($datos);
     }
 
+    public function ActualizaAlumnoPerfil()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $mensaje = $this->model->ActualizaAlumnoPerfil($datos);
+        return $mensaje;
+        //print_r($datos);
+    }
+
     public function AsignaGrupo()
     {
         $datos = $_REQUEST['datos'];

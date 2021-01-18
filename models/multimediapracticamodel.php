@@ -10,30 +10,32 @@ class MultimediaPracticaModel extends Model
         $items = [];
 
         try{
-            $query = $this->db->connect()->prepare("select
-            m.idmultimedia,
-            m.titulo,
-            m.url,
-            m.comentario,
-            m.aprobado,
+            $query = $this->db->connect()->prepare("select 
+            COALESCE(ma.idmultimedia, '-') as idmultimedia,
+            COALESCE(m.titulo, '-') as titulo,
+            COALESCE(m.descripcion, '-') as multi_descripcion,
+            COALESCE(m.url, '-') as url,
+            COALESCE(m.comentario, '-') as comentario,
+            COALESCE(m.aprobado, '-') as aprobado,
+            g.descripcion as grupo_descripcion,
+            COALESCE(r.descripcion, '-') as registro,
             concat(p.nombres, ' ', p.apellidos) as nombres
-            from multimedia m
-            inner JOIN multimedia_alumno ma
-            on ma.idmultimedia = m.idmultimedia
-            inner join participantes p
-            on p.idparticipante = ma.idalumno 
-            where ma.idalumno in (
-            select idalumno
-            from multimedia_alumno
-            where idalumno in (
-            select p.idparticipante 
             from participantes p
-            inner join grupo_participante gp
+            inner JOIN grupo_participante gp
             on gp.idparticipante = p.idparticipante
-            where gp.idgrupo in (
-            select idgrupo
-            from grupo_docente
-            where iddocente=:iddocente)))");
+            inner join grupo g
+            on g.idgrupo = gp.idgrupo
+            left join multimedia_alumno ma
+            on ma.idalumno = p.idparticipante
+            left join multimedia m
+            on m.idmultimedia = ma.idmultimedia
+            left join registro r
+            on r.id_registro = ma.idregistro
+            where p.estado = 1
+            and g.idgrupo in (
+            SELECT idgrupo FROM grupo_docente where iddocente=:iddocente
+            )
+            order by g.descripcion, nombres");
             $query->execute([
                 'iddocente' => $datos['iddocente']
             ]);

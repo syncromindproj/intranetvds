@@ -11,32 +11,29 @@ class MultimediaAdminModel extends Model
 
         try{
             $query = $this->db->connect()->prepare("
-            SELECT 
-            m.idmultimedia,
-            m.titulo,
-            m.url,
+            select
+            COALESCE(m.idmultimedia, 'AÚN NO HA PUBLICADO') AS idmultimedia,
+            COALESCE(m.titulo, 'AÚN NO HA PUBLICADO') as titulo,
+            COALESCE(m.url, 'AÚN NO HA PUBLICADO') as url,
+            g.descripcion as grupo,
             COALESCE(concat(d.nombres, ' ', d.apellidos), '-') as docente,
             COALESCE(concat(p.nombres, ' ', p.apellidos), '-') as alumno,
-            COALESCE(g.descripcion, 'SIN GRUPO ALUMNO') as grupo_alumno,
-            COALESCE(GROUP_CONCAT(gg.descripcion), 'SIN GRUPO DOCENTE') as grupo_docente
-            FROM multimedia m
+            COALESCE(m.comentario, 'AÚN NO HA PUBLICADO') as comentario,
+            COALESCE(m.aprobadO, 'AÚN NO HA PUBLICADO') as aprobado
+            from participantes p
+            left join multimedia_alumno ma
+            on ma.idalumno = p.idparticipante
+            left join multimedia m
+            on m.idmultimedia = ma.idmultimedia
+            left join grupo_participante gp
+            on gp.idparticipante = p.idparticipante
+            left join grupo g
+            on g.idgrupo = gp.idgrupo
             left join multimedia_docente md
-            on m.idmultimedia = md.idmultimedia
+            on md.idmultimedia = m.idmultimedia
             left join docente d
             on d.iddocente = md.iddocente
-            left join multimedia_alumno ma
-            on ma.idmultimedia = m.idmultimedia
-            left join participantes p
-            on p.idparticipante = ma.idalumno
-            left join multimedia_grupo mg
-            on mg.idmultimedia = m.idmultimedia
-            left join grupo_participante gp
-            on gp.idparticipante = ma.idalumno
-            left join grupo g
-            on gp.idgrupo = g.idgrupo
-            left join grupo gg
-            on mg.idgrupo = gg.idgrupo
-            group by gg.idgrupo");
+            where p.estado = 1");
             $query->execute();
 
             while($row =  $query->fetch()){

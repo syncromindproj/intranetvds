@@ -41,6 +41,13 @@ class GrupoController extends Controller{
         echo "Grupo Insertado";
     }
 
+    public function GetGruposxDocente(){
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $grupos = $this->model->GetGruposxDocente($datos);
+        echo(json_encode($grupos));
+    }
+
     public function ActualizaGrupo()
     {
         $datos = $_REQUEST['datos'];

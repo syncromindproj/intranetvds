@@ -93,8 +93,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                 <small><?PHP echo $this->subtitle ; ?></small>
             </h1>
             <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="#">Intranet</a></li>
+                <li><a href="panel"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li class="active">Listado de Archivos</li>
             </ol>
         </section>
@@ -117,15 +116,19 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                                 <h4><i class="icon fa fa-check"></i> Confirmación</h4>
                                 <span id="mensaje_confirmacion"></span>
                             </div>
-
+                            <ul id="grupo_filter"></ul>
                             <table id="multimedia_tabla" class="table table-striped table-bordered" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>Titulo</th>
+                                        <th>Descripción</th>
                                         <th>Url</th>
                                         <th>Alumno</th>
+                                        <th>Grupo</th>
+                                        <th>Registro</th>
                                         <th>Comentario</th>
                                         <th>Estado</th>
+                                        <th>Eliminar</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -152,7 +155,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                                 <img class="img-responsive" id="img_multimedia" />
                                 <div id="div_vid" class="embed-responsive embed-responsive-16by9" style="display:none;">
                                     <video id="vid_multimedia" controls >
-                                        <source src="" type="video/mp4">
+                                        <source src="" type="video/quicktime">
                                     </video>
                                 </div>
                                 <div id="div_audio" style="display:none;">
@@ -171,6 +174,27 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
             </div>
         </div>
         <!-- End Div Ver Multimedia -->
+
+        <!-- Delete Modal -->
+        <div class="modal modal-danger fade" id="modal-delete">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">¿Eliminar Registro?</h4>
+              </div>
+              <div class="modal-body">
+                <p><span id="sp_grupo"></span></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn_elimina" data-value="" class="btn btn-outline">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Delete Modal -->
 </div>
 
 
@@ -212,54 +236,211 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
 			"columnDefs":[
 			    {
 			        "targets": 0,
-                    "data":"titulo"
+                    "data":"titulo",
+                    "render":function(url, type, full){
+                        var titulo = full['titulo'];
+                        if(titulo == "-"){
+                            return "<span style='color:red;'>AÚN NO HA PUBLICADO</span>";
+                        }else{
+                            return titulo;
+                        }
+                    }
                     
 			    },
                 {
-                    "targets":1,
+			        "targets": 1,
+                    "data":"multi_descripcion",
+                    "render":function(url, type, full){
+                        var multi_descripcion = full['multi_descripcion'];
+                        if(multi_descripcion == "-"){
+                            return "<span style='color:red;'>AÚN NO HA PUBLICADO</span>";
+                        }else{
+                            return multi_descripcion;
+                        }
+                    }
+                    
+			    },
+                {
+                    "targets":2,
                     "data":"url",
 					"render":function(url, type, full){
                         var link = full["url"];
-                        return "<a onclick='ver_multimedia(this);' data-url='"+ link +"' href='#'>"+ link +"</a>";
+                        if(link == "-"){
+                            return "<span style='color:red;'>AÚN NO HA PUBLICADO</span>";
+                        }else{
+                            return "<a onclick='ver_multimedia(this);' data-url='"+ link +"' href='#'>"+ link +"</a>";
+                        }
 					}
                 },
                 {
-			        "targets": 2,
+			        "targets": 3,
                     "data":"nombres"
+                    
+                },
+                {
+			        "targets": 4,
+                    "data":"grupo_descripcion"
                     
 			    },
                 {
-			        "targets": 3,
+			        "targets": 5,
+                    "data":"registro"
+                    
+			    },
+                {
+			        "targets": 6,
                     "data":"comentario",
                     "render":function(url, type, full){
                         var comentario = full['comentario'];
                         var id = full['idmultimedia'];
-                        if(comentario == ""){
+                        switch(comentario){
+                            case "":
+                                return "<button class='btn btn-primary' id='recordButton_"+ id +"' onclick='startRecording("+ id +");'><i class='fa fa-circle'></i> Grabar</button> <button class='btn btn-primary' id='pauseButton_"+ id +"' onclick='pauseRecording("+ id +");' disabled><i class='fa fa-pause'></i> Pausa</button> <button class='btn btn-primary' disabled id='stopButton_"+ id +"' onclick='stopRecording("+ id +");'><i class='fa fa-stop'></i> Stop</button>";
+                                break;
+                            case "-":
+                                return "<span style='color:red;'>AÚN NO HA PUBLICADO</span>";
+                                break;
+                            default:
+                                return '<div style="display:flex;"><audio controls><source src="'+ '<?PHP echo(constant('URL')); ?>' + 'views/uploads/audios/' + comentario +'" type="audio/mpeg">Your browser does not support the audio element.</audio> <button class="btn btn-danger" title="Eliminar comentario" onclick="eliminar_comentario('+ id +');"><i class="fa fa-trash"></i></button></div>';
+                                break;
+                        }
+                        
+                        /*if(comentario == ""){
                             return "<button class='btn btn-primary' id='recordButton_"+ id +"' onclick='startRecording("+ id +");'><i class='fa fa-circle'></i> Grabar</button> <button class='btn btn-primary' id='pauseButton_"+ id +"' onclick='pauseRecording("+ id +");' disabled><i class='fa fa-pause'></i> Pausa</button> <button class='btn btn-primary' disabled id='stopButton_"+ id +"' onclick='stopRecording("+ id +");'><i class='fa fa-stop'></i> Stop</button>";
                         }else{
                             return '<div style="display:flex;"><audio controls><source src="'+ '<?PHP echo(constant('URL')); ?>' + 'views/uploads/audios/' + comentario +'" type="audio/mpeg">Your browser does not support the audio element.</audio> <button class="btn btn-danger" title="Eliminar comentario" onclick="eliminar_comentario('+ id +');"><i class="fa fa-trash"></i></button></div>';
                             //return 'dddd';
+                        }*/
+                    }
+                },
+                {
+                    "targets": 7,
+                    "render": function(url, type, full){
+                        var id = full['idmultimedia'];
+                        var aprobado = full['aprobado'];
+                        switch(aprobado){
+                            case "0":
+                                return '<label><input onclick="aprobar(1, '+ id +');" type="checkbox" class="flat-red"> Aprobado</label>';
+                                break;
+                            case "-":
+                                return "<span style='color:red;'>AÚN NO HA PUBLICADO</span>";
+                                break;
+                            default:
+                                return '<label><input onclick="aprobar(0, '+ id +');" checked type="checkbox" class="flat-red"> Aprobado</label>';
+                                break;
                         }
                     }
                 },
                 {
-                    "targets": 4,
+                    "targets":8,
                     "render": function(url, type, full){
-                        var id = full['idmultimedia'];
-                        var aprobado = full['aprobado'];
-                        if(aprobado == "0"){
-                            return '<label><input onclick="aprobar(1, '+ id +');" type="checkbox" class="flat-red"> Aprobado</label>';
+                        var idmultimedia = "'" + full["idmultimedia"] + "&" + full["url"] + "'";
+                        if(full["idmultimedia"] != '-'){
+                            return '<button onclick="alert_elimina('+ idmultimedia + ');" title="Eliminar material" class="btn btn-danger"><i class="fa fa-trash"></i></button>';
                         }else{
-                            return '<label><input onclick="aprobar(0, '+ id +');" checked type="checkbox" class="flat-red"> Aprobado</label>';
+                            return "<span style='color:red;'>AÚN NO HA PUBLICADO</span>";
                         }
-                        
+                    
                     }
                 }
 			]
 			
         } );
 
+        $('#grupo_filter').on( 'click', 'a', function () {
+            multimedia.columns(4).search($(this).text()).draw();
+        });
+
+        $('#grupo_filter').on('click', 'a.all', function() {
+            multimedia
+            .search('')
+            .columns(4)
+            .search('')
+            .draw();
+        });
+
+        var info            = {};
+        info["iddocente"]   = $("#txt_idparticipante").val();
+        var datos           = JSON.stringify(info);
+
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>grupo/GetGruposxDocente", 
+            data:{
+                datos: datos
+            },
+            success: function(result){
+                var datos = JSON.parse(result);
+                var lista = $("#grupo_filter");
+                var html = "";
+                html += '<li><a href="#" class="all">TODOS</a></li>';
+                for(var x=0;x<datos.data.length;x++){
+                    html += '<li><a href="#">' + datos.data[x]['descripcion'] + '</a></li>';
+                }
+                lista.html(html);
+            },
+            error:function(result){
+                console.log(result);
+            }
+        });
+
+
+        $("#btn_elimina").click(function(){
+            var data = $("#btn_elimina").attr("data-value");
+            var id = data.split("&")[0];
+            
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>multimedia/EliminaS3Object", 
+                data:{
+                    datos: '{"url": "' + data.split("&")[1] + '"}'
+                },
+                success: function(result){
+                    console.log(result);
+                    if(result == "Eliminado S3"){
+                        EliminarRegistro(id);
+                    }
+                    //$('#modal-delete').modal('hide');
+                    //multimedia.ajax.reload();	
+                    //$("#mensaje_confirmacion").html(result);
+                    //$("#confirm_grupo").show().delay(2000).fadeOut();
+                },
+                error:function(result){
+                    console.log(result);
+                }
+            });
+
+        });
+
     });
+
+    function EliminarRegistro(id)
+    {
+        $.ajax({
+            type: "POST",
+            url: "<?PHP echo constant('URL'); ?>multimediaalumno/EliminaMultimediaSingle", 
+            data:{
+                datos: '{"id": "' + id + '" }'
+            },
+            success: function(result){
+                console.log(result);
+                $('#modal-delete').modal('hide');
+                multimedia.ajax.reload();	
+                $("#mensaje_confirmacion").html(result);
+                //$("#confirm_grupo").show().delay(2000).fadeOut();
+            },
+            error:function(result){
+                console.log(result);
+            }
+        });
+    }
+
+    function alert_elimina(id, link)
+    {
+        $('#modal-delete').modal();
+        $('#sp_grupo').html("Deseas eliminar el material: " + id + "?");
+        $("#btn_elimina").attr("data-value", id);
+    }
 
     function aprobar(estado, id){
         $.ajax({
@@ -339,14 +520,64 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                         $("#img_multimedia").css("display", "block");
                         $("#img_multimedia").attr("src", datos.url);
                         break;
-                    case "mp4":
+
+                    case "mp4" || "MP4":
                         $("#img_multimedia").css("display", "none");
                         $("#div_audio").css("display", "none");
                         
                         $("#div_vid").css("display", "block");
                         $("#vid_multimedia").attr("src", datos.url);
                         break;
-                    case "mp3":
+
+                    case "mpeg" || "MPEG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mpg" || "MPG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "MOV":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mov":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+                
+                    case "mp3" || "MP3":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4a" || "M4A":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4v" || "M4V":
                         $("#img_multimedia").css("display", "none");
                         $("#div_vid").css("display", "none");
                         

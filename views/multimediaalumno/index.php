@@ -94,8 +94,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                 <small><?PHP echo $this->subtitle ; ?></small>
             </h1>
             <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="#">Intranet</a></li>
+                <li><a href="panel"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li class="active">Listado de Archivos</li>
             </ol>
         </section>
@@ -169,6 +168,12 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                         </div>
                         <div class="row" style="margin-top:20px;">
                             <div class="col-md-12">
+                                <label for="sl_registro">Registro vocal</label>
+                                <select id="sl_registro" class="form-control" required></select>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:20px;">
+                            <div class="col-md-12">
                                 <!--input required type="file" id="archivo" name="archivo" />
                                 <div id="progress"></div-->
                                  <!-- Direct Upload to S3 Form -->
@@ -216,7 +221,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                                 <img class="img-responsive" id="img_multimedia" />
                                 <div id="div_vid" class="embed-responsive embed-responsive-16by9" style="display:none;">
                                     <video id="vid_multimedia" controls >
-                                        <source src="" type="video/mp4">
+                                        <source src="" type="video/quicktime">
                                     </video>
                                 </div>
                                 <div id="div_audio" style="display:none;">
@@ -426,6 +431,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
 					action: function ( e, dt, node, config ) {
                         opcion = "nuevo";
                         $('#md_nuevo').modal();
+                        cargaRegistros();
                         $("#btn_enviar").text("Guardar");
                         $("#txt_titulo").val("");
                         $("#txt_descripcion").val("");
@@ -474,19 +480,42 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
         var titulo = $("#txt_titulo").val();
         var descripcion = $("#txt_descripcion").val();
         var archivo = $("#txt_archivo_s3").val();
+        var idregistro = $("#sl_registro").val();
+        console.log("1", idregistro);
         if(archivo != ""){
-            GuardarMultimedia(alumno, titulo, descripcion, archivo);
+            GuardarMultimedia(alumno, titulo, descripcion, archivo, idregistro);
         }
         
     });
 
-    function GuardarMultimedia(alumno, titulo, descripcion, url){
+    function cargaRegistros(){
+        $("#sl_registro").empty();
+        $("#sl_registro").append('<option value="" selected="selected">Seleccione un registro vocal</option>');
+        $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: "<?PHP echo constant('URL'); ?>multimediaalumno/getRegistros", 
+            success: function(result){
+                $.each(result.data, function(i,v){
+                    var idregistro  = v.id_registro;
+                    var descripcion = v.descripcion;
+                    $("#sl_registro").append('<option value="' + idregistro +'">'+ descripcion +'</option>');
+                });
+            }
+        });
+    }
+
+    function GuardarMultimedia(alumno, titulo, descripcion, url, idregistro){
+        console.log("2", idregistro);
         var info = {};
         info["idalumno"]    = alumno;
         info["titulo"]      = titulo;
         info["descripcion"] = descripcion;
         info["url"]         = url;
+        info["idregistro"]  = idregistro;
         var datos = JSON.stringify(info);
+        console.log("3", datos);
         $.ajax({
             type: "POST",
             url: "<?PHP echo constant('URL'); ?>multimediaalumno/GuardarMultimedia", 
@@ -576,14 +605,64 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                         $("#img_multimedia").css("display", "block");
                         $("#img_multimedia").attr("src", datos.url);
                         break;
-                    case "mp4":
+
+                    case "mp4" || "MP4":
                         $("#img_multimedia").css("display", "none");
                         $("#div_audio").css("display", "none");
                         
                         $("#div_vid").css("display", "block");
                         $("#vid_multimedia").attr("src", datos.url);
                         break;
-                    case "mp3":
+
+                    case "mpeg" || "MPEG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mpg" || "MPG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "MOV":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mov":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+                
+                    case "mp3" || "MP3":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4a" || "M4A":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4v" || "M4V":
                         $("#img_multimedia").css("display", "none");
                         $("#div_vid").css("display", "none");
                         

@@ -40,7 +40,7 @@ class ParticipanteController extends Controller{
         $padre = json_decode($datos['padre'], true);
         
         $mensaje .= "<p>Registro de Alumno</p>";
-        $mensaje .= "<p>Gracias por registrarte en le Intranet de Voces del Sol. Se han registrado las siguientes personas:</p>";
+        $mensaje .= "<p>Gracias por registrarte en la Intranet de Voces del Sol. Se han registrado las siguientes personas:</p>";
         if(count($madre)>0){
             $mensaje .= "<p><b>MADRE</b></p>";
             $mensaje .= "<p>Nombres: ".$madre['nombres']."</p>";

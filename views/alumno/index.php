@@ -39,6 +39,7 @@
                         <h4><i class="icon fa fa-check"></i> Confirmación</h4>
                         <span>El registro fue eliminado</span>
                     </div>
+                    <ul id="grupo_filter"></ul>
                     <table id="alumnos" class="table table-striped table-bordered" style="width:100%">
                         <thead>
                             <tr>
@@ -317,7 +318,6 @@
                                                         <h4><i class="icon fa fa-check"></i> Confirmación</h4>
                                                         <span>El registro fue eliminado</span>
                                                     </div>
-                            
                                                     <table id="apoderados_table" class="table table-striped table-bordered" style="width:100%">
                                                         <thead>
                                                             <tr>
@@ -576,6 +576,48 @@
         alumnos
             .order( [ 0, 'asc' ] )
             .draw();
+
+        //AGREGAR BOTONES DE FILTRO PARA DOCENTES
+        if(tipo_usuario == 'DOC'){
+            $('#grupo_filter').on( 'click', 'a', function () {
+                alumnos.columns(3).search($(this).text()).draw();
+            });
+
+            $('#grupo_filter').on('click', 'a.all', function() {
+                alumnos
+                .search('')
+                .columns(3)
+                .search('')
+                .draw();
+            });
+
+            var info            = {};
+            info["iddocente"]   = $("#txt_idparticipante").val();
+            var datos           = JSON.stringify(info);
+
+            $.ajax({
+                type: "POST",
+                url: "<?PHP echo constant('URL'); ?>grupo/GetGruposxDocente", 
+                data:{
+                    datos: datos
+                },
+                success: function(result){
+                    console.log(result);
+                    var datos = JSON.parse(result);
+                    var lista = $("#grupo_filter");
+                    var html = "";
+                    html += '<li><a href="#" class="all">TODOS</a></li>';
+                    for(var x=0;x<datos.data.length;x++){
+                        html += '<li><a href="#">' + datos.data[x]['descripcion'] + '</a></li>';
+                    }
+                    lista.html(html);
+                },
+                error:function(result){
+                    console.log(result);
+                }
+            });
+        }
+        //AGREGAR BOTONES DE FILTRO PARA DOCENTES
 
         $("#btn_elimina_alumno").click(function(){
             var id = $("#btn_elimina_alumno").attr("data-value");;

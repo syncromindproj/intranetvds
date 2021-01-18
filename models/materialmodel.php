@@ -16,13 +16,14 @@ class MaterialModel extends Model
             m.idmaterial,
             m.titulo,
             m.url,
-            COALESCE(g.descripcion, 'SINGRUPO') as grupo
+            COALESCE(GROUP_CONCAT(g.descripcion), 'SINGRUPO') as grupo
             FROM 
             material m
             left join material_grupo mg
             on mg.idmaterial = m.idmaterial
             left join grupo g
-            on g.idgrupo = mg.idgrupo");
+            on g.idgrupo = mg.idgrupo
+            group by m.idmaterial");
             $query->execute();
 
             while($row =  $query->fetch()){

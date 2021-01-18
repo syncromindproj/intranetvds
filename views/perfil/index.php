@@ -9,7 +9,7 @@
             </h1>
             <small><?PHP echo $this->subtitle ; ?></small>
             <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li><a href="panel"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li class="active"><a href="#">Perfil</a></li>
             </ol>
         </section>
@@ -109,7 +109,7 @@
             <div id="confirm_apoderado" class="alert alert-success alert-dismissible" style="display:none;">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                 <h4><i class="icon fa fa-check"></i> Confirmación</h4>
-                <span>Los datos han sido atualizados</span>
+                <span>Los datos han sido actualizados</span>
             </div>
 
             <?PHP if($_SESSION['tipo'] == "ALU"){ ?>
@@ -367,6 +367,42 @@
             });
 
             get_grupo();
+
+            $("#btn_actualizar").click(function(){
+                var id          = '<?PHP echo($_SESSION['idparticipante']); ?>';
+                
+                var nombres         = $("#txt_nombres").val();
+                var apellidos       = $("#txt_apellidos").val();
+                var correo          = $("#txt_correo").val();
+                var celular         = $("#txt_celular").val();
+                var dni             = $("#txt_dni").val();
+                var direccion       = $("#txt_direccion").val();
+                var info            = {};
+                info["id"]          = id;
+                info["nombres"]     = nombres;
+                info["apellidos"]   = apellidos;
+                info["correo"]      = correo;
+                info["celular"]     = celular;
+                info["dni"]         = dni;
+                info["direccion"]   = direccion;
+                var myJsonString    = JSON.stringify(info);
+                
+                $.ajax({
+                    type: "POST",
+                    url: "<?PHP echo constant('URL'); ?>alumno/ActualizaAlumnoPerfil", 
+                    data:{
+                        datos: myJsonString
+                    },
+                    success: function(result){
+                        console.log(result);
+                        $("#confirm_apoderado").show().delay(2000).fadeOut();
+                        ver_alumno(id);
+                    },
+                    error:function(result){
+                        console.log(result);
+                    }
+                });
+            });
         <?PHP } ?>
 
         <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){ ?>
@@ -500,7 +536,7 @@
                     },
                     success: function(result){
                         console.log(result);
-                        
+                        $("#confirm_apoderado").show().delay(2000).fadeOut();
                     },
                     error:function(result){
                         console.log(result);
@@ -557,7 +593,6 @@
             },
             success: function(result){
                 var datos = jQuery.parseJSON(result);
-                console.log(datos);
                 $("#txt_nombres").val(datos.nombres);
                 $("#txt_apellidos").val(datos.apellidos);
                 $("#txt_nacimiento").val(datos.fecha_nacimiento);

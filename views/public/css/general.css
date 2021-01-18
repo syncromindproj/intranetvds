@@ -53,3 +53,31 @@
     font-size: .7em;
 }
 .bar.red { background: tomato; }
+
+.main-sidebar{
+    width:250px !important;
+}
+
+.main-header .logo{
+    width:250px !important;
+}
+
+.main-header .navbar{
+    margin-left:250px !important;
+}
+
+.content-wrapper, .main-footer{
+    margin-left:250px !important;
+}
+
+@media (min-width: 768px){
+    .sidebar-mini.sidebar-collapse .main-header .navbar {
+        margin-left: 50px !important;
+    }
+}
+
+@media (min-width: 768px){
+    .sidebar-mini.sidebar-collapse .main-header .logo {
+        width: 50px !important;
+    }
+}

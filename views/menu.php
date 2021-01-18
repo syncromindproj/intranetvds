@@ -12,6 +12,7 @@
         <li><a href="comunicado"><i class="fa fa-link"></i> <span>Comunicados</span></a></li>
         <li><a href="evento"><i class="fa fa-link"></i> <span>Eventos</span></a></li>
         <li><a href="horario_coros"><i class="fa fa-link"></i> <span>Calendario de Actividades</span></a></li>
+        <li><a href="preinscripcion"><i class="fa fa-link"></i> <span>Preinscripción</span></a></li>
         <!--li class="treeview" >
             <a href="#">
             <i class="fa fa-table"></i> <span>Participantes</span>
@@ -31,14 +32,14 @@
         <li><a href="perfil"><i class="fa fa-link"></i> <span>Mi Perfil</span></a></li>
         <li><a href="multimediaalumno"><i class="fa fa-link"></i> <span>Multimedia</span></a></li>
         <li><a href="horario_alumno"><i class="fa fa-link"></i> <span>Calendario de Actividades</span></a></li>
-        <li><a href="personal_administrativo"><i class="fa fa-link"></i> <span>Personal Administrativo</span></a></li>
+        <li><a href="personal_administrativo"><i class="fa fa-link"></i> <span>Personal Administrativo y Docente</span></a></li>
     <?PHP } ?>
 
     <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'PDF'){ ?>
         <li><a href="perfil"><i class="fa fa-link"></i> <span>Mi Perfil</span></a></li>
         <li><a href="horario_alumno"><i class="fa fa-link"></i> <span>Calendario de Actividades</span></a></li>
         <li><a href="datos_hijos"><i class="fa fa-link"></i> <span>Datos de Hijos</span></a></li>
-        <li><a href="personal_administrativo"><i class="fa fa-link"></i> <span>Personal Administrativo</span></a></li>
+        <li><a href="personal_administrativo"><i class="fa fa-link"></i> <span>Personal Administrativo y Docente</span></a></li>
     <?PHP } ?>
 
     <?PHP if(isset($_SESSION['tipo']) && $_SESSION['tipo'] == 'DOC'){ ?>

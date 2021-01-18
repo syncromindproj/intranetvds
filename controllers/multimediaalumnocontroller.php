@@ -98,6 +98,15 @@ class MultimediaAlumnoController extends Controller
         
     }
 
+    public function EliminaMultimediaSingle()
+    {
+        $datos = $_REQUEST['datos'];
+        $datos = json_decode($datos, true);
+        $multimedia = $this->model->EliminaMultimediaSingle($datos["id"]);
+        echo json_encode($multimedia);
+        
+    }
+
     public function S3GetObject(){
         $datos = $_REQUEST['datos'];
         $datos = json_decode($datos, true);
@@ -142,6 +151,12 @@ class MultimediaAlumnoController extends Controller
         $datos = json_decode($datos, true);
         $respuesta = $this->model->EnviarNotificaciones($datos);
         echo json_encode($respuesta);
+    }
+
+    public function getRegistros()
+    {
+        $registros = $this->model->getRegistros();
+        echo(json_encode($registros));
     }
 }
 ?>

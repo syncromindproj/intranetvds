@@ -62,6 +62,41 @@ class GrupoModel extends Model{
         }
     }
 
+    public function GetGruposxDocente($datos){
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->prepare("SELECT
+            g.idgrupo,
+            g.descripcion,
+            g.estado,
+            g.color
+            from grupo g
+            inner join grupo_docente gd
+            on gd.idgrupo = g.idgrupo
+            inner join docente d
+            on d.iddocente = gd.iddocente
+            where g.estado = 1
+            and d.iddocente = :iddocente
+            order by g.descripcion asc");
+            $query->execute([
+                'iddocente' => $datos['iddocente']
+            ]);
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
+        }
+    }
+
     public function InsertaGrupo($datos){
         $query = $this->db->connect()->prepare('insert into grupo (descripcion, color) values (:descripcion, :color)');
         $query->execute(

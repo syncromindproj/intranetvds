@@ -98,8 +98,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                 <small><?PHP echo $this->subtitle ; ?></small>
             </h1>
             <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="#">Intranet</a></li>
+                <li><a href="panel"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li class="active">Listado de Archivos</li>
             </ol>
         </section>
@@ -472,7 +471,6 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                     $.ajax({
                         type: "POST",
                         url: "<?PHP echo constant('URL'); ?>multimedia/AsignaGrupo", 
-                        async:false,
                         data:{
                             datos: myJsonString
                         },
@@ -639,14 +637,64 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                         $("#img_multimedia").css("display", "block");
                         $("#img_multimedia").attr("src", datos.url);
                         break;
-                    case "mp4":
+
+                    case "mp4" || "MP4":
                         $("#img_multimedia").css("display", "none");
                         $("#div_audio").css("display", "none");
                         
                         $("#div_vid").css("display", "block");
                         $("#vid_multimedia").attr("src", datos.url);
                         break;
-                    case "mp3":
+
+                    case "mpeg" || "MPEG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mpg" || "MPG":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "MOV":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "mov":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_audio").css("display", "none");
+                        
+                        $("#div_vid").css("display", "block");
+                        $("#vid_multimedia").attr("src", datos.url);
+                        break;
+                
+                    case "mp3" || "MP3":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4a" || "M4A":
+                        $("#img_multimedia").css("display", "none");
+                        $("#div_vid").css("display", "none");
+                        
+                        $("#div_audio").css("display", "block");
+                        $("#audio_multimedia").attr("src", datos.url);
+                        break;
+
+                    case "m4v" || "M4V":
                         $("#img_multimedia").css("display", "none");
                         $("#div_vid").css("display", "none");
                         

@@ -45,12 +45,13 @@ class MultimediaAlumnoModel extends Model
         try{
             $con = $this->db->connect();
             $query = $this->db->connect()->prepare('call inserta_multimedia_alumno
-            (:titulo, :descripcion, :url, :idalumno)');
+            (:titulo, :descripcion, :url, :idalumno, :idregistro)');
             $query->execute([
                 'titulo'            => $datos['titulo'],
                 'descripcion'       => $datos['descripcion'],
                 'url'               => $datos['url'],
-                'idalumno'          => $datos['idalumno']
+                'idalumno'          => $datos['idalumno'],
+                'idregistro'          => $datos['idregistro']
             ]);
             $latest_id = $con->lastInsertId();
             return $latest_id;
@@ -74,6 +75,29 @@ class MultimediaAlumnoModel extends Model
             $query->execute([
                 'id'   => $id,
                 'idalumno'   => $idalumno
+            ]);
+
+            return "Eliminado";    
+            
+        }catch(PDOException $e){
+            return $e->getMessage();
+            
+        }
+    }
+
+    function EliminaMultimediaSingle($id)
+    {
+        $archivo = "";
+        
+        try{
+            $query = $this->db->connect()->prepare('delete from multimedia where idmultimedia = :id');
+            $query->execute([
+                'id'   => $id
+            ]);
+
+            $query = $this->db->connect()->prepare('delete from multimedia_alumno where idmultimedia = :id');
+            $query->execute([
+                'id'   => $id
             ]);
 
             return "Eliminado";    
@@ -147,6 +171,26 @@ class MultimediaAlumnoModel extends Model
 
         }catch(PDOException $e){
             return $e->getCode();
+        }
+    }
+
+    public function getRegistros(){
+        $items = [];
+
+        try{
+            $query = $this->db->connect()->query("select * from registro where estado=1 order by descripcion asc");
+
+            while($row =  $query->fetch()){
+                $items['data'][] = $row;
+            }
+
+            if(count($items) == 0){
+                $items['data'] = "";
+            }
+            
+            return $items;
+        }catch(PDOException $e){
+            return [];
         }
     }
 }

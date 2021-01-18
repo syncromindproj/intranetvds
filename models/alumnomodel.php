@@ -591,5 +591,37 @@ order by p.apellidos asc");
             return $e->getCode();
         }
     }
+
+    public function ActualizaAlumnoPerfil($datos)
+    {
+        try{
+            print_r($datos);
+            $query = $this->db->connect()->prepare('
+            update participantes p
+            inner join participante_detalle pd
+            on p.idparticipante = pd.idparticipante
+            set 
+            p.nombres = :nombres,
+            p.apellidos = :apellidos,
+            p.celular_postulante = :celular_postulante,
+            p.correo_postulante = :correo_postulante,
+            pd.direccion = :direccion
+            where p.idparticipante = :idparticipante');
+            $query->execute([
+                'nombres'                   => $datos['nombres'],
+                'apellidos'                 => $datos['apellidos'],
+                'idparticipante'            => $datos['id'],
+                'celular_postulante'        => $datos['celular'],
+                'correo_postulante'         => $datos['correo'],
+                'direccion'                 => $datos['direccion']
+            ]);
+            
+
+            return "Datos Actualizados";
+        }catch(PDOException $e){
+            //return $e->getCode();
+            return "error";
+        }
+    }
 }
 ?>

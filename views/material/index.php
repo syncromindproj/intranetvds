@@ -18,8 +18,7 @@
                 <small><?PHP echo $this->subtitle ; ?></small>
             </h1>
             <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li><a href="#">Intranet</a></li>
+                <li><a href="panel"><i class="fa fa-dashboard"></i> Home</a></li>
                 <li class="active">Listado de Registros</li>
             </ol>
         </section>
@@ -95,7 +94,7 @@
                         <div class="form-row">
                             <div class="col-4">
                                 <label for="sl_grupo">Grupo</label>
-                                <select id="sl_grupo" class="form-control" required></select>
+                                <select multiple id="sl_grupo" class="form-control" required></select>
                             </div>
                         </div>
                 </div>
@@ -398,28 +397,37 @@
 
         $("#btn_asignar").click(function(event){
             event.preventDefault();
+            var grupo_arr = $("#sl_grupo").val();
             var idmaterial = $("#btn_asignar").attr("data-value");
-            var idgrupo = $("#sl_grupo").val();
-            var info = {};
-            info["idmaterial"] = idmaterial;
-            info["idgrupo"]    = idgrupo;
-            var datos = JSON.stringify(info);
-            $.ajax({
-                type: "POST",
-                url: "<?PHP echo constant('URL'); ?>material/AsignarGrupo", 
-                data:{
-                    datos: datos
-                },
-                success: function(result){
-                    console.log(result);
-                    $("#md_asignar").modal('hide');
-                    materiales.ajax.reload();
-                },
-                error: function(result){
-                    console.log(result);
+            if(grupo_arr.length > 0){
+                var grupo = "";
+                for(var x=0;x<grupo_arr.length;x++){
+                    grupo = grupo_arr[x];
+                    var info = {};
+                    info["idgrupo"]    = grupo;
+                    info["idmaterial"] = idmaterial;
+                    var datos = JSON.stringify(info);   
+                    $.ajax({
+                        type: "POST",
+                        url: "<?PHP echo constant('URL'); ?>material/AsignarGrupo", 
+                        data:{
+                            datos: datos
+                        },
+                        success: function(result){
+                            console.log(result);
+                            $("#md_asignar").modal('hide');
+                            materiales.ajax.reload();
+                        },
+                        error: function(result){
+                            console.log(result);
+                        }
+                    });
+                    console.log(datos);     
                 }
-            });
-            console.log(datos);
+            }
+            
+            
+            
         });
     });
 
@@ -441,7 +449,7 @@
     function cargaGrupos()
     {
         $("#sl_grupo").empty();
-        $("#sl_grupo").append('<option value="" selected="selected">Seleccione un grupo</option>');
+        //$("#sl_grupo").append('<option value="" selected="selected">Seleccione un grupo</option>');
         $.ajax({
             type: "GET",
             contentType: "application/json; charset=utf-8",
