@@ -42,6 +42,12 @@ class PreinscripcionController extends Controller
         $info = $this->model->AprobarPostulante($datos);
         echo json_encode($info);
     }
+	
+	public function Exportar()
+    {
+        $info = $this->model->Exportar();
+        echo json_encode($info);
+    }
     
 }
 ?>

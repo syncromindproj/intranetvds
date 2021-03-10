@@ -87,6 +87,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
 
     return compact('url', 'inputs');
 }
+
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -288,6 +289,11 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                                 <div class="tab-pane" id="audio">
                                     <div class="row">
                                         <div class="col-md-12">
+                                            <div id="div_vid" class="embed-responsive embed-responsive-16by9" style="display:none;">
+                                                <video id="vid_multimedia" controls >
+                                                    <source src="" type="video/quicktime">
+                                                </video>
+                                            </div>
                                             <div id="div_audio">
                                                 <input type="hidden" id="txt_archivo">
                                                 <audio controls id="audio_multimedia">
@@ -302,8 +308,12 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                         
                     </div>
                     <div class="modal-footer">
+						<?php
+							if($_SESSION['tipo'] != 'DOC'){
+						?>
                         <button type="button" class="btn btn-success" id="btn_aprobar" data-dismiss="modal">Aprobar</button>
                         <button type="button" class="btn btn-danger" id="btn_rechazar" data-dismiss="modal">Rechazar</button>
+						<?php } ?>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     </div> 
                 </div>
@@ -353,6 +363,7 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
         </div>
         <!-- End Aprobar Modal -->
        
+		<div id="dvjson"></div>
 </div>
 
 <!-- Main Footer -->
@@ -384,6 +395,8 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
         color:#fff;
     }
 </style>
+<script src='<?PHP echo constant('URL'); ?>views/plugins/excelexportjs.js'></script>
+
 <script>
     function getDetalles(id){
         var info    = {};
@@ -540,6 +553,14 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                                 $("#audio_multimedia").attr("src", datos.url);
                                 break;
 
+                            case "wav" || "WAV":
+                                $("#img_multimedia").css("display", "none");
+                                $("#div_vid").css("display", "none");
+                                
+                                $("#div_audio").css("display", "block");
+                                $("#audio_multimedia").attr("src", datos.url);
+                                break;
+
                             case "m4v" || "M4V":
                                 $("#img_multimedia").css("display", "none");
                                 $("#div_vid").css("display", "none");
@@ -547,8 +568,22 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
                                 $("#div_audio").css("display", "block");
                                 $("#audio_multimedia").attr("src", datos.url);
                                 break;
-                        }
-                        
+
+                            case "m4a" || "M4A":
+                                $("#img_multimedia").css("display", "none");
+                                $("#div_vid").css("display", "none");
+                                
+                                $("#div_audio").css("display", "block");
+                                $("#audio_multimedia").attr("src", datos.url);
+                                break;
+
+                            case "mp4" || "MP4":
+                                    $("#div_audio").css("display", "none");
+                                    
+                                    $("#div_vid").css("display", "block");
+                                    $("#vid_multimedia").attr("src", datos.url);
+                                    break;
+                        }   
                     },
                     error: function(result){
                         console.log(result);
@@ -624,6 +659,36 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
 					}
                 }
                 
+			],
+			"dom": 'Bfrtip',
+			"buttons": [
+				{
+					"extend": "pdfHtml5",
+					"orientation": "landscape",
+					"pageSize": "LEGAL"
+				},
+                {
+                    text: 'Exportar',
+					action: function ( e, dt, node, config ) {
+                        $.ajax({
+							type: "POST",
+							url: "<?PHP echo constant('URL'); ?>preinscripcion/Exportar", 
+							success: function(result){
+								console.log(result);
+								var info = JSON.parse(result);
+								$("#dvjson").excelexportjs({
+									containerid: "dvjson", 
+									datatype: 'json', 
+									dataset: info, 
+									columns: getColumns(info)     
+								});
+							},
+							error: function(result){
+
+							}
+						});
+                    }
+                }
 			]
         } );
 
@@ -644,6 +709,8 @@ function getS3Details($s3Bucket, $region, $acl = 'private') {
 
         $('#md_ver').on('hidden.bs.modal', function (e) {
             $("#audio_multimedia").attr("src", "");
+            $("#vid_multimedia").attr("src", "");
+            
         });
     });
 

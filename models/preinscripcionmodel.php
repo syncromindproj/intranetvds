@@ -67,6 +67,7 @@ class PreinscripcionModel extends Model
 
         try{
             $correo_postulante    = "";
+            $correo_apoderado     = "";
             $query = $this->db->connect()->prepare("
             update  
             preinscripcion
@@ -87,6 +88,7 @@ class PreinscripcionModel extends Model
             
             while($row =  $query->fetch()){
                 $correo_postulante = $row['correo_postulante'];
+                $correo_apoderado = $row['mail_apoderado'];
             }
             //Obtiene correo postulante
 
@@ -94,8 +96,9 @@ class PreinscripcionModel extends Model
             $items['message'] = 'El postulante ha sido rechazado';
 
             //Envio de correo
+            $correos        = $correo_apoderado.','.$correo_postulante; 
             $from_email     = 'administracion@vocesdelsol.com'; 
-            $to             = $correo_postulante; 
+            $to             = ''; 
             $subject        = 'Voces del Sol - Evaluación'; 
             
             $htmlContent = '
@@ -114,6 +117,7 @@ class PreinscripcionModel extends Model
 
             //header for sender info
             $headers = "From: ".$from_email;
+            $headers .= "\nBcc: ".$correos;
             
             //boundary 
             $semi_rand = md5(time()); 
@@ -145,6 +149,8 @@ class PreinscripcionModel extends Model
 
         try{
             $correo_postulante    = "";
+            $correo_apoderado = "";
+
             $query = $this->db->connect()->prepare("
             update  
             preinscripcion
@@ -165,6 +171,7 @@ class PreinscripcionModel extends Model
             
             while($row =  $query->fetch()){
                 $correo_postulante = $row['correo_postulante'];
+                $correo_apoderado = $row['mail_apoderado'];
             }
             //Obtiene correo postulante
 
@@ -172,8 +179,9 @@ class PreinscripcionModel extends Model
             $items['message'] = 'El postulante ha sido aprobado';
 
             //Envio de correo
+            $correos        = $correo_apoderado.','.$correo_postulante; 
             $from_email     = 'administracion@vocesdelsol.com'; 
-            $to             = $correo_postulante; 
+            $to             = ''; 
             $subject        = 'Voces del Sol - Evaluación'; 
             
             $htmlContent = '
@@ -209,6 +217,7 @@ class PreinscripcionModel extends Model
 
             //header for sender info
             $headers = "From: ".$from_email;
+            $headers .= "\nBcc: ".$correos;
             
             //boundary 
             $semi_rand = md5(time()); 
@@ -232,6 +241,34 @@ class PreinscripcionModel extends Model
         }catch(PDOException $e){
             return $e->getCode();
         }
+    }
+	
+	public function Exportar()
+    {
+        $items = [];
+        
+        try{
+            
+            $sql = "select * from preinscripcion where aprobado=1";
+            $query = $this->db->connect()->prepare($sql);
+            $query->execute();
+            
+            $y=0;
+            while($row =  $query->fetch(PDO::FETCH_ASSOC)){
+                $items[]  = $row;
+            }
+
+            if(count($items) == 0){
+                $items = "";
+            }
+            return $items; 
+                
+
+        }catch(PDOException $e){
+            return [];
+        } 
+            
+        
     }
 
 }

@@ -228,12 +228,12 @@
                     return false;
                   }
                   
-                  if(pagos == '0'){
+                  /*if(pagos == '0'){
                     $(".modal-title").html("Pagos");
                     var myPDF = PDFObject.embed("<?PHP echo constant('URL'); ?>views/uploads/reglamento/pagos.pdf", "#pdf");
                     $("#btn_acepta").attr("data-doc", "pagos");
                     return false;
-                  }
+                  }*/
                 }
 
                 if(tipo != 'ALU'){

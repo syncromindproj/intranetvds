@@ -46,7 +46,7 @@
         <li><a href="perfil"><i class="fa fa-link"></i> <span>Mi Perfil</span></a></li>
         <li><a href="alumno"><i class="fa fa-link"></i> <span>Alumnos</span></a></li>
         <li><a href="material"><i class="fa fa-link"></i> <span>Material Académico</span></a></li>
-        
+        <li><a href="preinscripcion"><i class="fa fa-link"></i> <span>Preinscripción</span></a></li>
         <!--li><a href="multimedia"><i class="fa fa-link"></i> <span>Multimedia</span></a></li-->
         <li class="treeview">
           <a href="#">
